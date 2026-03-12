@@ -1,13 +1,28 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --bg: #f6f8fb;
+  --surface: #ffffff;
+  --surface-muted: #f0f4fa;
+  --text-strong: #0f172a;
+  --text-soft: #5b6472;
+  --border-subtle: #dce3ee;
+  --brand-50: #e8eeff;
+  --brand-200: #c5d3ff;
+  --brand-400: #7f9aff;
+  --brand-500: #4f6df5;
+  --brand-600: #3451d1;
+  --brand-700: #273fa5;
+  --danger: #e11d48;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --shadow-soft: 0 10px 25px rgba(15, 23, 42, 0.07);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg);
+  --color-foreground: var(--text-strong);
   --font-sans: "Segoe UI", "Avenir Next", "Helvetica Neue", ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -18,9 +33,27 @@ body {
 
 body {
   background:
-    radial-gradient(circle at top right, rgba(14, 165, 233, 0.08), transparent 28rem),
-    radial-gradient(circle at left 20%, rgba(16, 185, 129, 0.08), transparent 25rem),
-    var(--background);
-  color: var(--foreground);
+    radial-gradient(circle at top right, rgba(79, 109, 245, 0.12), transparent 30rem),
+    radial-gradient(circle at left 20%, rgba(56, 189, 248, 0.1), transparent 28rem),
+    var(--bg);
+  color: var(--text-strong);
   font-family: var(--font-sans);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  letter-spacing: -0.02em;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

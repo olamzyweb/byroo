@@ -71,11 +71,12 @@ export class StripeBillingProvider implements BillingProvider {
     return session.url;
   }
 
-  async handleWebhook(rawBody: string, signature: string | null): Promise<void> {
+  async handleWebhook(rawBody: string, headers: Headers): Promise<void> {
     if (!env.stripeWebhookSecret) {
       throw new Error("Missing STRIPE_WEBHOOK_SECRET");
     }
     const stripe = getStripe();
+    const signature = headers.get("stripe-signature");
     const event = stripe.webhooks.constructEvent(rawBody, signature ?? "", env.stripeWebhookSecret);
 
     if (event.type === "checkout.session.completed") {

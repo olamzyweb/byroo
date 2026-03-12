@@ -1,43 +1,43 @@
-import Link from "next/link";
+import { Badge, ButtonLink, Card } from "@/components/ui";
 import { PLAN_CONFIG } from "@/lib/plans";
-import { Card } from "@/components/ui";
 
 export default function PricingPage() {
   return (
-    <main className="mx-auto min-h-screen w-full max-w-5xl px-6 py-10 md:px-10">
+    <main className="mx-auto min-h-screen w-full max-w-5xl px-5 py-10 md:px-8">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-slate-900">Simple pricing</h1>
-        <p className="mt-2 text-slate-600">Start free and upgrade when your business grows.</p>
+        <Badge tone="brand">Pricing</Badge>
+        <h1 className="mt-3 text-4xl font-semibold">Simple plans for creators</h1>
+        <p className="mt-2 text-sm text-[var(--text-soft)]">Start free and unlock growth features with Pro.</p>
       </div>
 
-      <div className="mt-8 grid gap-5 md:grid-cols-2">
+      <div className="mt-8 grid gap-4 md:grid-cols-2">
         <Card>
-          <h2 className="text-xl font-semibold text-slate-900">{PLAN_CONFIG.free.label}</h2>
-          <p className="mt-1 text-2xl font-bold">$0<span className="text-base font-medium text-slate-500">/month</span></p>
-          <ul className="mt-4 space-y-2 text-sm text-slate-600">
-            <li>Up to 5 links</li>
-            <li>Up to 3 portfolio items</li>
-            <li>1 basic theme</li>
+          <p className="text-xs uppercase tracking-[0.14em] text-[var(--text-soft)]">Free</p>
+          <p className="mt-2 text-3xl font-semibold">₦0</p>
+          <ul className="mt-4 space-y-2 text-sm text-[var(--text-soft)]">
+            <li>Up to {PLAN_CONFIG.free.maxLinks} links</li>
+            <li>Up to {PLAN_CONFIG.free.maxPortfolioItems} portfolio items</li>
+            <li>Basic theme</li>
             <li>Byroo branding</li>
           </ul>
         </Card>
 
-        <Card className="border-sky-300">
-          <h2 className="text-xl font-semibold text-slate-900">{PLAN_CONFIG.pro.label}</h2>
-          <p className="mt-1 text-2xl font-bold">${PLAN_CONFIG.pro.priceMonthly}<span className="text-base font-medium text-slate-500">/month</span></p>
-          <ul className="mt-4 space-y-2 text-sm text-slate-600">
-            <li>Unlimited links</li>
-            <li>Unlimited portfolio items</li>
-            <li>All themes</li>
-            <li>Analytics + remove branding</li>
+        <Card accent>
+          <p className="text-xs uppercase tracking-[0.14em] text-[var(--brand-600)]">Pro</p>
+          <p className="mt-2 text-3xl font-semibold">₦{PLAN_CONFIG.pro.priceMonthly}<span className="text-sm text-[var(--text-soft)]">/month</span></p>
+          <ul className="mt-4 space-y-2 text-sm text-[var(--text-soft)]">
+            <li>Unlimited links and portfolio</li>
+            <li>Premium themes</li>
+            <li>Analytics dashboard</li>
+            <li>Remove Byroo branding</li>
           </ul>
         </Card>
       </div>
 
       <div className="mt-8 text-center">
-        <Link href="/signup" className="rounded-xl bg-sky-600 px-5 py-3 text-sm font-semibold text-white hover:bg-sky-500">
+        <ButtonLink href="/signup" size="lg">
           Create your space
-        </Link>
+        </ButtonLink>
       </div>
     </main>
   );

@@ -1,100 +1,124 @@
-# Byroo Database Schema
+﻿# Byroo Database Schema
 
-## Tables
+## Existing Core Tables
+- `profiles`
+- `subscriptions`
+- `links`
+- `portfolio_items`
+- `services`
+- `themes`
+- `analytics_events`
+- `social_profiles`
+- `admin_users`
+- `admin_audit_logs`
 
-### profiles
-- `id uuid primary key` references `auth.users(id)`
-- `email text not null unique`
-- `username text not null unique`
-- `display_name text not null`
-- `bio text`
-- `avatar_url text`
-- `whatsapp_number text`
+## Extended Tables / Fields (Nigeria WhatsApp-Vendor)
+
+### profiles (extended)
+Additional fields:
+- `header_image_url text`
+- `business_location text`
+- `google_maps_url text`
+- `delivery_info text`
+- `opening_hours text`
+- `nationwide_delivery boolean`
+- `in_store_pickup boolean`
+- `instagram_url text`
+- `tiktok_url text`
+- `facebook_url text`
+- `trusted_badge_text text`
+
+### services (extended)
+Additional fields:
+- `cta_type text` (`whatsapp` | `external`)
 - `whatsapp_prefill text`
-- `theme_key text not null default 'byroo-light'`
-- `branding_hidden boolean not null default false`
-- `plan text not null default 'free'` (`free` | `pro`)
-- `onboarded boolean not null default false`
-- `created_at timestamptz not null default now()`
-- `updated_at timestamptz not null default now()`
+- `availability_status text` (`available` | `limited` | `unavailable`)
 
-### subscriptions
-- `id uuid primary key default gen_random_uuid()`
-- `user_id uuid not null` references `profiles(id)`
-- `provider text not null` (`stripe`)
-- `provider_customer_id text`
-- `provider_subscription_id text`
-- `status text not null`
-- `plan_key text not null default 'pro_monthly'`
-- `price_id text`
-- `current_period_end timestamptz`
-- `created_at timestamptz not null default now()`
-- `updated_at timestamptz not null default now()`
-
-### links
-- `id uuid primary key default gen_random_uuid()`
-- `user_id uuid not null` references `profiles(id)`
-- `title text not null`
-- `url text not null`
-- `type text not null default 'website'`
-- `is_active boolean not null default true`
-- `sort_order int not null default 0`
-- `created_at timestamptz not null default now()`
-- `updated_at timestamptz not null default now()`
-
-### portfolio_items
-- `id uuid primary key default gen_random_uuid()`
-- `user_id uuid not null` references `profiles(id)`
-- `title text not null`
-- `description text`
+### catalog_items (new)
+- `id uuid primary key`
+- `user_id uuid` -> `profiles(id)`
+- `name text`
 - `image_url text`
-- `external_url text`
-- `is_active boolean not null default true`
-- `sort_order int not null default 0`
-- `created_at timestamptz not null default now()`
-- `updated_at timestamptz not null default now()`
+- `price text`
+- `short_description text`
+- `category text`
+- `availability_status text`
+- `cta_type text` (`order_whatsapp` | `inquire_whatsapp`)
+- `cta_text text`
+- `whatsapp_prefill text`
+- `is_active boolean`
+- `sort_order int`
+- timestamps
 
-### services
-- `id uuid primary key default gen_random_uuid()`
-- `user_id uuid not null` references `profiles(id)`
-- `name text not null`
-- `description text`
-- `starting_price text`
-- `cta_text text not null default 'Contact me'`
-- `cta_url text`
-- `is_active boolean not null default true`
-- `sort_order int not null default 0`
-- `created_at timestamptz not null default now()`
-- `updated_at timestamptz not null default now()`
+### testimonials (new)
+- `id uuid primary key`
+- `user_id uuid` -> `profiles(id)`
+- `customer_name text`
+- `review_text text`
+- `rating int (1-5)`
+- `is_featured boolean`
+- `sort_order int`
+- timestamps
 
-### themes
-- `key text primary key`
-- `name text not null`
-- `is_pro boolean not null default false`
-- `tokens jsonb not null`
+### social_profiles (new)
+- `id uuid primary key`
+- `user_id uuid` -> `profiles(id)`
+- `platform text` (`instagram` | `tiktok`)
+- `username text`
+- `display_name text`
+- `profile_image_url text`
+- `bio text`
+- `followers_count bigint`
+- `following_count bigint`
+- `content_count bigint`
+- `verified boolean`
+- `profile_url text`
+- `raw_payload jsonb`
+- `sync_status text` (`idle` | `syncing` | `success` | `error`)
+- `sync_error text`
+- `last_synced_at timestamptz`
+- timestamps
+- unique `(user_id, platform)`
 
-### analytics_events
-- `id uuid primary key default gen_random_uuid()`
-- `profile_user_id uuid not null` references `profiles(id)`
-- `event_type text not null` (`profile_view` | `link_click`)
-- `link_id uuid` references `links(id)`
-- `referrer_host text`
-- `ip_hash text`
-- `user_agent_hash text`
-- `created_at timestamptz not null default now()`
-
-## Storage Buckets
-- `avatars` (public read)
-- `portfolio` (public read)
-
-## RLS Overview
-- Users can read/write only their own rows in user-owned tables.
-- Public read for `themes` and public page content via API/server queries.
-- Analytics insert only via server APIs (service role path).
+## RLS
+User-owned all-access policies for:
+- `links`
+- `portfolio_items`
+- `services`
+- `catalog_items`
+- `testimonials`
 
 ## Indexes
-- `profiles(username)` unique
-- `links(user_id, sort_order)`
-- `portfolio_items(user_id, sort_order)`
-- `services(user_id, sort_order)`
-- `analytics_events(profile_user_id, created_at)`
+- `idx_catalog_user_order (user_id, sort_order)`
+- `idx_testimonials_user_order (user_id, sort_order)`
+- `idx_admin_audit_logs_created_at (created_at desc)`
+- `idx_admin_audit_logs_action (action)`
+- `idx_social_profiles_status_updated (sync_status, updated_at desc)`
+
+## Admin Tables
+
+### admin_users
+- `user_id uuid` -> `profiles(id)` (PK)
+- `created_at timestamptz`
+
+Purpose:
+- Explicit allow-list for admin panel access.
+
+### admin_audit_logs
+- `id uuid` (PK)
+- `actor_user_id uuid` -> `profiles(id)`
+- `action text`
+- `target_user_id uuid` -> `profiles(id)` nullable
+- `metadata jsonb`
+- `created_at timestamptz`
+
+Purpose:
+- Track high-impact internal operations (plan overrides, admin grants, sync actions).
+- Existing indexes retained.
+
+## Migration
+Run:
+- `supabase/migrations/20260311_nigeria_whatsapp_vendor_extension.sql`
+- `supabase/migrations/20260312_social_proof_block.sql`
+
+Then keep `supabase/schema.sql` as canonical full schema snapshot.

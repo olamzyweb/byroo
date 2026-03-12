@@ -1,7 +1,8 @@
-import { saveProfileAction, uploadAvatarAction } from "@/app/dashboard/actions";
-import { Card, Button, Input, SectionTitle, TextArea } from "@/components/ui";
-import { createClient } from "@/lib/supabase/server";
+﻿import { saveProfileAction, uploadAvatarAction, uploadHeaderImageAction } from "@/app/dashboard/actions";
+import { SubmitButton } from "@/components/submit-button";
+import { Avatar, Card, HelperText, Input, SectionHeader, TextArea } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function ProfilePage({
   searchParams,
@@ -16,45 +17,81 @@ export default async function ProfilePage({
 
   return (
     <div className="space-y-6">
-      <SectionTitle title="Profile" subtitle="Set your username and basic profile details." />
+      <SectionHeader title="Profile" subtitle="Core brand identity and social trust links." />
 
-      {params.error ? <p className="rounded-lg bg-rose-50 p-2 text-sm text-rose-700">{params.error}</p> : null}
-      {params.message ? <p className="rounded-lg bg-emerald-50 p-2 text-sm text-emerald-700">{params.message}</p> : null}
+      {params.error ? <HelperText tone="error">{params.error}</HelperText> : null}
+      {params.message ? <HelperText tone="success">{params.message}</HelperText> : null}
 
-      <Card>
-        <h3 className="text-sm font-semibold text-slate-900">Avatar</h3>
-        <form action={uploadAvatarAction} className="mt-3 flex flex-wrap items-center gap-3">
-          <Input type="file" name="avatar" accept="image/*" className="max-w-sm" />
-          <Button type="submit">Upload</Button>
-        </form>
-        {profile?.avatar_url ? <img src={profile.avatar_url} alt="avatar" className="mt-3 h-20 w-20 rounded-full object-cover" /> : null}
-      </Card>
+      <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+        <Card>
+          <h3 className="text-sm font-semibold">Profile details</h3>
+          <form action={saveProfileAction} className="mt-4 space-y-3">
+            <div>
+              <label className="mb-1 block text-xs uppercase tracking-[0.14em] text-[var(--text-soft)]">Display name</label>
+              <Input name="displayName" defaultValue={profile?.display_name ?? ""} required />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs uppercase tracking-[0.14em] text-[var(--text-soft)]">Username</label>
+              <Input name="username" defaultValue={profile?.username ?? ""} placeholder="yourname" required />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs uppercase tracking-[0.14em] text-[var(--text-soft)]">Bio</label>
+              <TextArea name="bio" rows={3} defaultValue={profile?.bio ?? ""} />
+            </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              <Input name="instagramUrl" defaultValue={profile?.instagram_url ?? ""} placeholder="Instagram URL" />
+              <Input name="tiktokUrl" defaultValue={profile?.tiktok_url ?? ""} placeholder="TikTok URL" />
+              <Input name="facebookUrl" defaultValue={profile?.facebook_url ?? ""} placeholder="Facebook URL" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs uppercase tracking-[0.14em] text-[var(--text-soft)]">Trusted badge text</label>
+              <Input name="trustedBadgeText" defaultValue={profile?.trusted_badge_text ?? ""} placeholder="Trusted by 500+ happy customers" />
+            </div>
+            <SubmitButton pendingText="Saving...">Save profile</SubmitButton>
+          </form>
+        </Card>
 
-      <Card>
-        <form action={saveProfileAction} className="space-y-3">
-          <div>
-            <label className="mb-1 block text-sm text-slate-700">Display name</label>
-            <Input name="displayName" defaultValue={profile?.display_name ?? ""} required />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm text-slate-700">Username</label>
-            <Input name="username" defaultValue={profile?.username ?? ""} placeholder="yourname" required />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm text-slate-700">Bio</label>
-            <TextArea name="bio" rows={3} defaultValue={profile?.bio ?? ""} />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm text-slate-700">WhatsApp number</label>
-            <Input name="whatsappNumber" defaultValue={profile?.whatsapp_number ?? ""} placeholder="2348012345678" />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm text-slate-700">WhatsApp prefilled message</label>
-            <TextArea name="whatsappPrefill" rows={2} defaultValue={profile?.whatsapp_prefill ?? "Hello, I found your page on Byroo and I want to inquire."} />
-          </div>
-          <Button type="submit">Save profile</Button>
-        </form>
-      </Card>
+        <div className="space-y-4">
+          <Card>
+            <h3 className="text-sm font-semibold">Avatar</h3>
+            <form action={uploadAvatarAction} className="mt-3 space-y-3">
+              <Input type="file" name="avatar" accept="image/*" />
+              <SubmitButton variant="secondary" pendingText="Uploading...">
+                Upload avatar
+              </SubmitButton>
+            </form>
+          </Card>
+
+          <Card>
+            <h3 className="text-sm font-semibold">Header background</h3>
+            <form action={uploadHeaderImageAction} className="mt-3 space-y-3">
+              <Input type="file" name="headerImage" accept="image/*" />
+              <SubmitButton variant="secondary" pendingText="Uploading...">
+                Upload header image
+              </SubmitButton>
+            </form>
+          </Card>
+
+          <Card>
+            <h3 className="text-sm font-semibold">Live preview</h3>
+            <div className="mt-3 rounded-xl bg-[var(--surface-muted)] p-3">
+              <div
+                className="mb-3 h-24 rounded-lg bg-cover bg-center"
+                style={{
+                  backgroundImage: profile?.header_image_url
+                    ? `linear-gradient(rgba(15,23,42,0.25), rgba(15,23,42,0.25)), url(${profile.header_image_url})`
+                    : "none",
+                  backgroundColor: profile?.header_image_url ? undefined : "var(--surface)",
+                }}
+              />
+              <Avatar name={profile?.display_name ?? "User"} src={profile?.avatar_url} size="lg" />
+              <p className="mt-3 text-sm font-semibold">{profile?.display_name ?? "Display Name"}</p>
+              <p className="mt-1 text-xs text-[var(--text-soft)]">{profile?.bio || "Your business summary appears here."}</p>
+              <div className="mt-3 rounded-lg bg-[var(--surface)] px-3 py-2 text-xs">/{profile?.username || "username"}</div>
+            </div>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

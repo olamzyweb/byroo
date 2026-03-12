@@ -1,68 +1,104 @@
-# Byroo Tasks
+﻿# Byroo Tasks
 
-## Milestone Checklist
+## Existing MVP (Complete)
+- [x] Auth, dashboard, links, portfolio, services, themes, billing scaffold, analytics
 
-### Phase 1 - Discovery and Planning
-- [x] Define product scope and MVP limits
-- [x] Select stack and architecture
-- [x] Draft PRD, architecture, DB schema, setup/deploy docs
-- [x] Create decisions log
+## Nigeria WhatsApp-Vendor Extension Roadmap
 
-### Phase 2 - Project Setup
-- [x] Initialize Next.js + TypeScript + Tailwind
-- [x] Install core dependencies
-- [x] Create env templates
-- [x] Set up base folders and shared libs
+### Phase A - Product Catalog
+- [x] Add `catalog_items` schema and RLS
+- [x] Add catalog CRUD server actions
+- [x] Add `/dashboard/catalog` management page
+- [x] Render catalog on public page
+- [x] Enforce free vs pro catalog limits
 
-### Phase 3 - Data Model and Infrastructure
-- [x] Create SQL schema and seed scripts
-- [ ] Configure Supabase project buckets and run SQL
-- [x] Implement Supabase client/server/admin utilities
-- [x] Implement plan and theme config
+### Phase B - Smart WhatsApp CTA
+- [x] Add reusable WhatsApp helper
+- [x] Add global profile WhatsApp settings page
+- [x] Add item-specific WhatsApp prefilled messages
+- [x] Add service-specific WhatsApp prefilled messages
 
-### Phase 4 - Auth and Dashboard Foundation
-- [x] Signup/login/reset pages
-- [x] Protected dashboard layout
-- [x] Onboarding flow and profile basics
+### Phase C - Services / Price List Upgrade
+- [x] Extend services schema: CTA type, availability, WhatsApp prefill
+- [x] Update service dashboard form and cards
+- [x] Update public rendering for WhatsApp-first service inquiries
 
-### Phase 5 - Core MVP Features
-- [x] Public profile by username route
-- [x] Links CRUD with ordering and active toggle
-- [x] Portfolio CRUD
-- [x] Services CRUD
-- [x] Theme selection and branding toggle
-- [x] Avatar upload support
+### Phase D - Business Info Blocks
+- [x] Add business info fields in profile schema
+- [x] Add `/dashboard/business` page
+- [x] Render location/maps/delivery/hours/toggles on public page
 
-### Phase 6 - Plan Limits and Billing
-- [x] Feature-gate helpers
-- [x] Billing abstraction interface
-- [x] Stripe provider implementation scaffold
-- [x] Checkout / billing portal endpoints
-- [x] Subscription sync webhook endpoint
+### Phase E - Social + Trust Blocks
+- [x] Add social fields (Instagram, TikTok, Facebook)
+- [x] Add testimonials table and CRUD page (`/dashboard/reviews`)
+- [x] Render reviews and trusted badge on public page
 
-### Phase 7 - Analytics
-- [x] Profile view tracking endpoint
-- [x] Link click tracking endpoint
-- [x] Dashboard analytics summary
+### Phase F - Plan Gating Extension
+- [x] Add plan limits for catalog/services/testimonials
+- [x] Enforce new limits in server actions
+- [x] Reflect limits in docs and product positioning
 
-### Phase 8 - Polish
-- [x] Responsive pages and dashboard navigation
-- [x] Basic validation and error messaging
-- [x] Metadata defaults for SEO
-- [x] Empty/loading states for main views
+### Phase G - Public Storefront Redesign
+- [x] Reorder page sections to storefront flow
+- [x] Keep mobile-first structure and WhatsApp actions prominent
 
-### Phase 9 - QA and Docs
-- [ ] Run Supabase SQL in a live project
-- [ ] Connect Stripe keys and verify webhook signatures
-- [ ] End-to-end smoke test with real auth + billing
-- [x] Finalize README and setup/deploy docs
+### Phase H - Dashboard UX Extension
+- [x] Add new dashboard pages: catalog, business info, reviews, WhatsApp settings
+- [x] Extend sidebar navigation
 
-## Dependencies
-- Phase 3 depends on Supabase project credentials.
-- Phase 6 depends on Stripe product/price setup.
-- Phase 7 depends on analytics table existence.
+### Phase I - Documentation
+- [x] Update `docs/PRD.md`
+- [x] Update `docs/ARCHITECTURE.md`
+- [x] Update `docs/DB_SCHEMA.md`
+- [x] Update `docs/TASKS.md`
+- [x] Update `docs/DECISIONS.md`
+- [x] Update `README.md`
+
+## Admin Panel Roadmap (Internal Ops)
+
+### Phase J - Admin Access Control
+- [x] Add `admin_users` table
+- [x] Add `requireAdminUser` server guard
+- [x] Add protected `/admin` route group and navigation
+
+### Phase K - Monitoring Surfaces
+- [x] Add `/admin` overview with platform KPI cards
+- [x] Add `/admin/users` user management surface
+- [x] Add `/admin/subscriptions` billing sync monitor + manual sync action
+- [x] Add `/admin/analytics` platform engagement summaries
+- [x] Add `/admin/system` storage + config + audit activity view
+
+### Phase L - Admin Auditability
+- [x] Add `admin_audit_logs` table
+- [x] Log admin actions for plan/admin access/sync operations
+- [x] Show recent audit events in system page
+
+## Social Proof Block Roadmap
+
+### Phase M - Data Model + Infrastructure
+- [x] Add `social_profiles` table with unique `(user_id, platform)`
+- [x] Add indexes, trigger, and RLS policy
+- [x] Add migration `20260312_social_proof_block.sql`
+
+### Phase N - Provider Abstraction + Sync
+- [x] Add provider-agnostic social profile interface
+- [x] Add first provider implementation (SearchAPI-first Instagram/TikTok)
+- [x] Add normalized sync service with safe error handling
+- [x] Add scheduled stale refresh endpoint (`/api/socials/refresh`)
+
+### Phase O - Dashboard Social Proof Manager
+- [x] Add `/dashboard/socials` page
+- [x] Add connect/update/disconnect actions
+- [x] Add manual refresh action and sync status/error visibility
+- [x] Add plan gating (Free: 1 card, Pro: 2 cards)
+
+### Phase P - Public Social Proof Cards
+- [x] Add cached social profile fetch to public page data loader
+- [x] Add mobile-first social proof card section on `/[username]`
+- [x] Add compact stats, verification badge, and profile CTA
+- [x] Gracefully handle missing/fallback fields
 
 ## Next Up
-1. Execute `supabase/schema.sql` and `supabase/seed.sql` in Supabase SQL editor.
-2. Configure env vars from `.env.example`.
-3. Run local smoke tests for auth, profile publish, and billing entry.
+1. Run `supabase/migrations/20260312_social_proof_block.sql`.
+2. Add provider env vars (`APIFY_TOKEN`, actor ids, sync secret).
+3. Smoke test social flows: connect, sync, manual refresh, public rendering, cron refresh.

@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { BrandLogo } from "@/components/brand-logo";
 import { createClient } from "@/lib/supabase/server";
-import { Button, Card, Input } from "@/components/ui";
+import { SubmitButton } from "@/components/submit-button";
+import { Card, HelperText, Input } from "@/components/ui";
 
 async function signupAction(formData: FormData) {
   "use server";
@@ -27,26 +29,28 @@ export default async function SignupPage({
   const params = await searchParams;
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-md items-center px-6 py-10">
-      <Card className="w-full space-y-5">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Create your Byroo account</h1>
-          <p className="mt-1 text-sm text-slate-600">Start building your public business page.</p>
+    <main className="mx-auto flex min-h-screen w-full max-w-md items-center px-5 py-10">
+      <Card className="w-full">
+        <BrandLogo />
+        <p className="text-xs uppercase tracking-[0.16em] text-[var(--text-soft)]">Create account</p>
+        <h1 className="mt-2 text-2xl font-semibold">Create your Byroo space</h1>
+        <p className="mt-1 text-sm text-[var(--text-soft)]">Publish a premium profile page in minutes.</p>
+
+        <div className="mt-4 space-y-2">
+          {params.error ? <HelperText tone="error">{params.error}</HelperText> : null}
+          {params.message ? <HelperText tone="success">{params.message}</HelperText> : null}
         </div>
 
-        {params.error ? <p className="rounded-lg bg-rose-50 p-2 text-sm text-rose-700">{params.error}</p> : null}
-        {params.message ? <p className="rounded-lg bg-emerald-50 p-2 text-sm text-emerald-700">{params.message}</p> : null}
-
-        <form action={signupAction} className="space-y-3">
+        <form action={signupAction} className="mt-4 space-y-3">
           <Input name="email" type="email" placeholder="Email" required />
           <Input name="password" type="password" placeholder="Password" minLength={6} required />
-          <Button type="submit" className="w-full justify-center">
-            Sign up
-          </Button>
+          <SubmitButton className="w-full" pendingText="Creating account...">
+            Create account
+          </SubmitButton>
         </form>
 
-        <p className="text-sm text-slate-600">
-          Already have an account? <Link href="/login" className="font-medium text-sky-700">Log in</Link>
+        <p className="mt-4 text-sm text-[var(--text-soft)]">
+          Already have an account? <Link href="/login" className="font-medium text-[var(--brand-600)]">Log in</Link>
         </p>
       </Card>
     </main>

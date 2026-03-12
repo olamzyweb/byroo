@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { Card, SectionTitle } from "@/components/ui";
+import { ButtonLink, Card, SectionHeader, StatCard } from "@/components/ui";
 import { hasAnalytics } from "@/lib/feature-gates";
 import { getAnalyticsSummary } from "@/lib/analytics";
 import { getCurrentProfile, requireUser } from "@/lib/auth";
@@ -15,12 +14,12 @@ export default async function AnalyticsPage() {
   if (!hasAnalytics(profile.plan)) {
     return (
       <div className="space-y-4">
-        <SectionTitle title="Analytics" subtitle="Pro-only dashboard analytics." />
+        <SectionHeader title="Analytics" subtitle="See profile views and clicks with Pro." />
         <Card>
-          <p className="text-sm text-slate-700">Upgrade to Pro to unlock analytics.</p>
-          <Link href="/dashboard/billing" className="mt-3 inline-block text-sm font-semibold text-sky-700">
+          <p className="text-sm text-[var(--text-soft)]">Upgrade to Pro to unlock analytics insights.</p>
+          <ButtonLink href="/dashboard/billing" className="mt-3">
             Go to billing
-          </Link>
+          </ButtonLink>
         </Card>
       </div>
     );
@@ -30,28 +29,30 @@ export default async function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <SectionTitle title="Analytics" subtitle="Track page visits and link engagement." />
+      <SectionHeader title="Analytics" subtitle="Track your profile performance." />
       <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <p className="text-sm text-slate-500">Total profile views</p>
-          <p className="mt-2 text-2xl font-semibold text-slate-900">{summary.totalProfileViews}</p>
-        </Card>
-        <Card>
-          <p className="text-sm text-slate-500">Total link clicks</p>
-          <p className="mt-2 text-2xl font-semibold text-slate-900">{summary.totalLinkClicks}</p>
-        </Card>
+        <StatCard label="Total profile views" value={summary.totalProfileViews} />
+        <StatCard label="Total link clicks" value={summary.totalLinkClicks} />
       </div>
 
       <Card>
-        <h3 className="text-sm font-semibold text-slate-900">Top clicked links</h3>
-        <div className="mt-3 space-y-2 text-sm">
-          {summary.topLinks.length === 0 ? <p className="text-slate-500">No clicks recorded yet.</p> : null}
-          {summary.topLinks.map((item) => (
-            <div key={item.title} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
-              <span className="text-slate-700">{item.title}</span>
-              <span className="font-semibold text-slate-900">{item.clicks}</span>
-            </div>
-          ))}
+        <h3 className="text-sm font-semibold text-[var(--text-strong)]">Top links</h3>
+        <div className="mt-3 space-y-2">
+          {summary.topLinks.length === 0 ? <p className="text-sm text-[var(--text-soft)]">No clicks recorded yet.</p> : null}
+          {summary.topLinks.map((item) => {
+            const width = Math.max(8, Math.min(100, item.clicks * 10));
+            return (
+              <div key={item.title} className="space-y-1">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-[var(--text-soft)]">{item.title}</span>
+                  <span className="font-medium text-[var(--text-strong)]">{item.clicks}</span>
+                </div>
+                <div className="h-2 rounded-full bg-[var(--surface-muted)]">
+                  <div className="h-2 rounded-full bg-[var(--brand-500)]" style={{ width: `${width}%` }} />
+                </div>
+              </div>
+            );
+          })}
         </div>
       </Card>
     </div>

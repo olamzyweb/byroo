@@ -21,8 +21,8 @@ export async function POST() {
     .limit(1)
     .maybeSingle();
 
-  const customerId = subscription?.provider_customer_id;
-  if (!customerId) {
+  const customerId = subscription?.provider_customer_id ?? "";
+  if (!customerId && env.billingProvider === "stripe") {
     return NextResponse.redirect(new URL("/dashboard/billing?error=No+billing+profile+found", env.appUrl));
   }
 

@@ -1,52 +1,83 @@
-# Byroo Architecture
+﻿# Byroo Architecture
 
 ## Stack
 - Next.js 16 App Router + TypeScript
 - Tailwind CSS v4
 - Supabase: Auth, Postgres, Storage
-- Stripe (via provider abstraction)
+- Stripe (billing abstraction)
 - Vercel deployment target
 
-## High-level Components
-- Public web app: landing, pricing, public profile page `/[username]`
-- Auth pages: signup/login/reset
-- Protected dashboard: profile, links, portfolio, services, appearance, billing, analytics
-- API routes:
-  - `/api/analytics/view` (profile views)
-  - `/api/analytics/click` (link clicks)
-  - `/api/billing/checkout` (create checkout)
-  - `/api/billing/portal` (customer portal)
-  - `/api/billing/webhook` (provider webhook)
+## Product Architecture
+Byroo acts as storefront + identity layer.
+WhatsApp is the downstream order/inquiry channel.
 
-## Data Access Strategy
-- Browser and server Supabase clients for auth and user-scoped reads.
-- Service-role client for privileged operations and webhook handling.
-- Server actions perform write operations with validation and plan checks.
+Flow:
+1. Visitor opens public Byroo page.
+2. Visitor browses catalog/services/reviews/business info.
+3. Visitor taps CTA.
+4. CTA opens WhatsApp with prefilled context.
 
-## Security Model
-- Supabase auth with protected dashboard routes.
-- SQL row level security policies scoped by `auth.uid()`.
-- Feature gating enforced in server actions and SQL constraints where practical.
-- No secrets exposed to client; public env vars limited to anon key and app URL.
+## Modules
+
+### Public Web
+- `/[username]` storefront renderer
+- Theme-aware section blocks
+- First-party analytics capture
+- Social proof cards rendered from cached DB records
+
+### Dashboard
+- Profile + social management
+- Social proof manager (`/dashboard/socials`)
+- WhatsApp settings
+- Links manager
+- Catalog manager
+- Services/price-list manager
+- Portfolio manager
+- Reviews manager
+- Business info manager
+- Billing + analytics
+
+### Admin Console
+- `/admin` platform overview metrics
+- `/admin/users` account support operations (plan/admin toggles)
+- `/admin/subscriptions` billing sync diagnostics + manual sync
+- `/admin/analytics` platform traffic summaries
+- `/admin/system` storage health + audit feed
+
+### Backend
+- Server actions handle writes and plan-gating
+- Supabase service-role used for public reads and uploads
+- RLS for user-owned tables
+- Provider-agnostic social sync layer (SearchAPI-first implementation, swappable)
+- Scheduled sync endpoint for stale social profile refresh
+
+## Data Model Additions
+- `catalog_items`
+- `testimonials`
+- Extended `profiles` for business/social metadata
+- Extended `services` for CTA type, WhatsApp prefill, availability
+- `admin_users` (admin access control)
+- `admin_audit_logs` (internal action trace)
+- `social_profiles` (Instagram/TikTok normalized cache)
 
 ## Billing Abstraction
-- `BillingProvider` interface defines checkout, portal, and webhook processing contract.
-- Stripe implementation plugged via config.
-- Future Paystack provider can implement same interface without changing app pages.
+- `BillingProvider` interface unchanged
+- Stripe remains active provider
+- Future Paystack provider can reuse same contract
 
-## Analytics Model
-- First-party event capture to `analytics_events` table.
-- Event types: `profile_view`, `link_click`.
-- Dashboard summary query aggregates counts and top links.
-- Privacy-conscious fields use hashed IP and user agent.
+## Security Model
+- Auth-protected dashboard routes
+- Auth-protected admin routes with `admin_users` server-side check
+- RLS on user-owned tables (`links`, `portfolio_items`, `services`, `catalog_items`, `testimonials`)
+- Feature limits enforced server-side
 
-## Deployment Topology
-- Vercel hosts Next.js app.
-- Supabase project hosts DB/Auth/Storage.
-- Stripe handles recurring billing.
-- Environment variables managed in Vercel project settings.
+## WhatsApp Link Strategy
+Central helper in `src/lib/whatsapp.ts`:
+- global profile-level prefill
+- item-specific message templates (`{item_name}`)
+- service-specific message templates (`{service_name}`)
 
-## Extensibility
-- Additional providers: billing adapters.
-- More page blocks/themes via database-driven config.
-- Optional caching layer and edge analytics later without schema reset.
+## Deployment
+- Vercel app
+- Supabase DB/Auth/Storage
+- Stripe billing webhooks

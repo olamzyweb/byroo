@@ -1,62 +1,97 @@
-# Byroo PRD
+﻿# Byroo PRD
 
-## Product Summary
-Byroo is a link-in-bio + digital business card SaaS that gives each user a public page at `/username` to present identity, links, services, and portfolio.
+## Product Positioning
+Byroo is a WhatsApp-first storefront and digital business page for Nigerian small businesses and vendors.
 
-Core promise: one smart link for work, services, and contact.
+Byroo is not a WhatsApp replacement.
+- Byroo = storefront/public page
+- WhatsApp = chat/order channel
 
 ## Target Users
-- Freelancers
-- Creators
-- Small businesses
-- Service professionals
+- WhatsApp vendors
+- Online small businesses
+- Service businesses (makeup artists, nail techs, photographers, barbers, tutors, freelancers)
 
-## MVP Goals
-- User signup/login/reset
-- Guided onboarding
-- Public profile page at `/[username]`
-- CRUD for links, portfolio, services
-- Avatar upload
-- Theme selection (1 free, 2 pro)
-- Free vs Pro feature gating
-- Billing upgrade entrypoint
-- Lightweight first-party analytics
+## Core Value Proposition
+Give your business one smart page where customers can browse products/services and message you on WhatsApp with prefilled order inquiries.
 
-## Free Plan
-- Up to 5 links
-- Up to 3 portfolio items
-- 1 free theme
+## Product Goals
+- Help vendors present catalog + pricing + trust in one link.
+- Increase quality inbound WhatsApp conversations.
+- Provide simple free plan with monetizable pro upgrades.
+
+## Feature Scope
+
+### Must-have
+- Auth + dashboard
+- Public page by username
+- Links, portfolio, services
+- WhatsApp global settings
+- Product catalog with WhatsApp CTA
+- Business info blocks (maps, hours, delivery)
+- Reviews/testimonials
+- Social Proof Block (Instagram/TikTok cached profile cards)
+- Plan gating across all core blocks
+
+### Plan Model
+Free:
+- 5 links
+- 3 portfolio items
+- 5 catalog items
+- 6 services
+- 2 featured reviews
+- 1 social proof card
+- 1 theme
 - Byroo branding visible
-- No analytics dashboard
+- no analytics
 
-## Pro Plan
-- Unlimited links
-- Unlimited portfolio items
-- All themes
-- Hide branding
-- Analytics dashboard
+Pro:
+- unlimited key content limits
+- premium themes
+- hide branding
+- analytics access
+- up to 2 social proof cards
 
-## Key User Flows
-1. Visit landing page and signup.
-2. Complete onboarding: username, profile, first link, first portfolio item.
-3. Share public page.
-4. Upgrade to Pro from billing page when limits are reached.
+## Key Flows
+1. User signs up and configures profile + WhatsApp number.
+2. User adds catalog items/services/reviews.
+3. Customer lands on `byroo.space/username`.
+4. Customer taps item/service CTA -> WhatsApp opens with prefilled message.
 
-## Success Metrics (MVP)
-- New signup completion rate
-- % users publishing a public page
-- Link click events per active profile
-- Free-to-pro conversion rate
+## Social Proof Flow
+1. User adds Instagram and/or TikTok username in `/dashboard/socials`.
+2. Backend validates username and triggers sync via provider abstraction.
+3. Normalized profile data is cached in DB.
+4. Public page renders trust cards from cached data.
+5. Scheduled backend refresh keeps profile stats reasonably up to date.
+
+## Public Page Section Order
+1. Business header
+2. Quick action buttons
+3. Catalog
+4. Services / price list
+5. Portfolio
+6. Reviews
+7. Business info
+8. Footer branding
+
+## Success Metrics
+- Profile publish rate
+- WhatsApp CTA click-through rate
+- Catalog item interaction rate
+- Free to Pro conversion rate
 
 ## Non-goals
-- Teams/workspaces
+- Full cart/checkout
+- In-app messaging
 - Marketplace/discovery
-- Custom domains
-- Native mobile apps
+- Team accounts
 
-## Acceptance Criteria
-- Public page loads from username and respects theme/plan restrictions.
-- Limits are enforced server-side for free users.
-- Link clicks and page views are tracked.
-- Billing integration surface exists with provider abstraction.
-- Setup/deploy docs are sufficient for local and production use.
+## Internal Operations (MVP)
+- Protected admin console for platform monitoring and support operations.
+- Monitor user growth, subscriptions, storage, and traffic at platform level.
+- Manual interventions:
+  - set user plan
+  - grant/revoke admin access
+  - trigger billing sync repair
+- Audit log for all high-impact admin actions.
