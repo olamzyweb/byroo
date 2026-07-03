@@ -144,8 +144,8 @@ async function upsertPaystackSubscription(params: {
   planCode?: string | null;
   nextPaymentDate?: string | null;
 }) {
-  if (!params.subscriptionCode) {
-    console.error("[billing] Refusing to upsert subscription without a provider_subscription_id");
+  if (!params.subscriptionCode && !params.reference) {
+    console.error("[billing] Refusing to upsert subscription without a subscription code or reference");
     return;
   }
 
@@ -153,12 +153,12 @@ async function upsertPaystackSubscription(params: {
   const isActive = params.status === "active" || params.status === "success";
   await admin.from("profiles").update({ plan: isActive ? "pro" : "free" }).eq("id", params.userId);
 
-  const { data: existing } = await admin
+  const { data: existing } = params.subscriptionCode ? await admin
     .from("subscriptions")
     .select("id")
     .eq("provider", "paystack")
     .eq("provider_subscription_id", params.subscriptionCode)
-    .maybeSingle();
+    .maybeSingle() : { data: null };
 
   if (existing) {
     await admin.from("subscriptions").update({
@@ -178,21 +178,25 @@ async function upsertPaystackSubscription(params: {
     const { data: pending } = await pendingQuery.order("created_at", { ascending: false }).limit(1).maybeSingle();
 
     if (pending) {
-      await admin.from("subscriptions").update({
+      const updatePayload: Record<string, any> = {
         provider_customer_id: params.customerCode ?? null,
-        provider_subscription_id: params.subscriptionCode,
         provider_subscription_token: params.subscriptionToken ?? null,
         status: isActive ? "active" : params.status || "inactive",
         plan_key: "pro_monthly",
         price_id: params.planCode ?? null,
         current_period_end: params.nextPaymentDate ?? null,
-      }).eq("id", pending.id);
+      };
+      if (params.subscriptionCode) {
+        updatePayload.provider_subscription_id = params.subscriptionCode;
+      }
+      
+      await admin.from("subscriptions").update(updatePayload).eq("id", pending.id);
     } else {
       await admin.from("subscriptions").insert({
         user_id: params.userId,
         provider: "paystack",
         provider_customer_id: params.customerCode ?? null,
-        provider_subscription_id: params.subscriptionCode,
+        provider_subscription_id: params.subscriptionCode ?? null,
         provider_subscription_token: params.subscriptionToken ?? null,
         provider_reference: params.reference ?? null,
         status: isActive ? "active" : params.status || "inactive",
@@ -399,7 +403,7 @@ export class PaystackBillingProvider implements BillingProvider {
       if (customerCode) {
         await this.syncSubscriptionForUser({ userId, customerCode });
       }
-      return;
+      // Do NOT return here! Proceed to activate the user using the reference.
     }
 
     await upsertPaystackSubscription({
@@ -507,7 +511,7 @@ export class PaystackBillingProvider implements BillingProvider {
         if (customerCode) {
           await this.syncSubscriptionForUser({ userId, customerCode });
         }
-        return;
+        // Do NOT return here! Proceed to activate the user using the reference.
       }
 
       await upsertPaystackSubscription({
@@ -524,32 +528,17 @@ export class PaystackBillingProvider implements BillingProvider {
     }
 
     if (event === "subscription.not_renew" || event === "subscription.disable" || event === "invoice.payment_failed") {
-      debugPaystackWebhook("webhook.subscription.upsert", {
+      debugPaystackWebhook("webhook.subscription.sync", {
         userId,
-        status: "inactive",
+        status: "syncing",
         reference,
         customerCode,
         subscriptionCode,
         hasSubscriptionToken: Boolean(subscriptionToken),
       });
 
-      if (!subscriptionCode) {
-        if (customerCode) {
-          await this.syncSubscriptionForUser({ userId, customerCode });
-        }
-        return;
-      }
-
-      await upsertPaystackSubscription({
-        userId,
-        customerCode,
-        subscriptionCode,
-        subscriptionToken,
-        reference,
-        status: "inactive",
-        planCode,
-        nextPaymentDate: nextPayment,
-      });
+      await this.syncSubscriptionForUser({ userId, customerCode });
+      return;
     }
   }
 }
