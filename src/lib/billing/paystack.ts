@@ -307,17 +307,10 @@ export class PaystackBillingProvider implements BillingProvider {
     }
 
     if (!chosen) {
-      console.log(`[PROOF-TRACKER] DANGER: No valid subscription found in Paystack list! Forcibly downgrading user ${input.userId} to INACTIVE!`);
-      // If Paystack has no active subscriptions for this customer, 
-      // downgrade the user locally to fix their broken 'active' state.
-      const adminClient = createAdminClient();
-      await adminClient.from("profiles").update({ plan: "free" }).eq("id", input.userId);
-      await adminClient
-        .from("subscriptions")
-        .update({ status: "inactive" })
-        .eq("user_id", input.userId)
-        .eq("provider", "paystack")
-        .eq("status", "active");
+      console.log(`[PROOF-TRACKER] DANGER: No valid subscription found in Paystack list! Safely ignoring due to Paystack API lag instead of downgrading.`);
+      // If Paystack has no active subscriptions for this customer yet,
+      // DO NOT panic and downgrade them! The webhook already made them active,
+      // and this is just a caching delay on Paystack's end.
       return;
     }
 
