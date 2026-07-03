@@ -299,7 +299,15 @@ export class PaystackBillingProvider implements BillingProvider {
       return codeOk && tokenOk;
     });
     const chosen = preferred ?? latestWithToken ?? null;
+    
+    // TRACKER: Log exactly what Paystack returned!
+    console.log(`\n[PROOF-TRACKER] Paystack API returned ${rows.length} subscriptions for customer ${customerCode}.`);
+    if (rows.length > 0) {
+      console.log(`[PROOF-TRACKER] First subscription status from Paystack:`, rows[0].status);
+    }
+
     if (!chosen) {
+      console.log(`[PROOF-TRACKER] DANGER: No valid subscription found in Paystack list! Forcibly downgrading user ${input.userId} to INACTIVE!`);
       // If Paystack has no active subscriptions for this customer, 
       // downgrade the user locally to fix their broken 'active' state.
       const adminClient = createAdminClient();
@@ -323,6 +331,8 @@ export class PaystackBillingProvider implements BillingProvider {
     const mappedStatus = (chosenStatus === "active" || chosenStatus === "non-renewing" || chosenStatus === "attention") 
       ? "active" 
       : "inactive";
+
+    console.log(`[PROOF-TRACKER] SUCCESS: Found subscription ${subscriptionCode}. Raw status was '${chosenStatus}', mapped to '${mappedStatus}'.`);
 
     if (subscriptionCode && !subscriptionToken) {
       const full = await fetchSubscriptionByCode(subscriptionCode);
