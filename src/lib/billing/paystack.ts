@@ -286,6 +286,24 @@ export class PaystackBillingProvider implements BillingProvider {
     }
 
     if (!customerCode) {
+      // If we still don't have a customer code, it means the webhook/redirect completely failed.
+      // We can try to forcefully verify the most recent pending transaction reference instead.
+      const { data: pendingSub } = await admin
+        .from("subscriptions")
+        .select("provider_reference")
+        .eq("user_id", input.userId)
+        .eq("provider", "paystack")
+        .not("provider_reference", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (pendingSub?.provider_reference) {
+        console.log(`[PROOF-TRACKER] No customer code found for ${input.userId}. Force verifying reference ${pendingSub.provider_reference}...`);
+        await this.verifyCheckoutReference(pendingSub.provider_reference);
+      } else {
+        console.log(`[PROOF-TRACKER] DANGER: Cannot sync user ${input.userId} - no customer code or pending reference found.`);
+      }
       return;
     }
 
