@@ -1,29 +1,31 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #f6f8fb;
+  --bg: #FAFAFA;
   --surface: #ffffff;
-  --surface-muted: #f0f4fa;
-  --text-strong: #0f172a;
-  --text-soft: #5b6472;
-  --border-subtle: #dce3ee;
-  --brand-50: #e8eeff;
-  --brand-200: #c5d3ff;
-  --brand-400: #7f9aff;
-  --brand-500: #4f6df5;
-  --brand-600: #3451d1;
-  --brand-700: #273fa5;
+  --surface-muted: #F8FAFC;
+  --text-strong: #0F172A;
+  --text-soft: #64748B;
+  --border-subtle: #E2E8F0;
+  --brand-50: #EEF2FF;
+  --brand-200: #C7D2FE;
+  --brand-400: #818CF8;
+  --brand-500: #6366F1;
+  --brand-600: #4F46E5;
+  --brand-700: #4338CA;
   --danger: #e11d48;
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 18px;
-  --shadow-soft: 0 10px 25px rgba(15, 23, 42, 0.07);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-mockup: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
 }
 
 @theme inline {
   --color-background: var(--bg);
   --color-foreground: var(--text-strong);
-  --font-sans: "Segoe UI", "Avenir Next", "Helvetica Neue", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
 }
 
 html,
@@ -32,28 +34,25 @@ body {
 }
 
 body {
-  background:
-    radial-gradient(circle at top right, rgba(79, 109, 245, 0.12), transparent 30rem),
-    radial-gradient(circle at left 20%, rgba(56, 189, 248, 0.1), transparent 28rem),
-    var(--bg);
+  background: var(--bg);
   color: var(--text-strong);
-  font-family: var(--font-sans);
 }
 
 h1,
 h2,
 h3,
-h4 {
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
   letter-spacing: -0.02em;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  100% {
+    transform: translateX(-50%);
   }
 }

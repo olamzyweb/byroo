@@ -1,6 +1,17 @@
 import type { Metadata } from "next";
+import { Geist, Inter } from "next/font/google";
 import { env } from "@/lib/config";
 import "./globals.css";
+
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.appUrl),
@@ -41,7 +52,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className={`${geist.variable} ${inter.variable} antialiased`}>{children}</body>
     </html>
   );
 }

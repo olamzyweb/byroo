@@ -7,5 +7,5 @@ export function BrandLogo({
   className?: string;
   alt?: string;
 }) {
-  return <img src="/byroo-logo.png" alt={alt} className={cn("h-9 w-auto object-contain", className)} />;
+  return <img src="/byroo-logo.png" alt={alt} className={cn("h-16 md:h-20 w-auto object-contain", className)} />;
 }
