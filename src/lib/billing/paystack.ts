@@ -153,21 +153,55 @@ async function upsertPaystackSubscription(params: {
   const isActive = params.status === "active" || params.status === "success";
   await admin.from("profiles").update({ plan: isActive ? "pro" : "free" }).eq("id", params.userId);
 
-  await admin.from("subscriptions").upsert(
-    {
-      user_id: params.userId,
-      provider: "paystack",
+  const { data: existing } = await admin
+    .from("subscriptions")
+    .select("id")
+    .eq("provider", "paystack")
+    .eq("provider_subscription_id", params.subscriptionCode)
+    .maybeSingle();
+
+  if (existing) {
+    await admin.from("subscriptions").update({
       provider_customer_id: params.customerCode ?? null,
-      provider_subscription_id: params.subscriptionCode ?? null,
       provider_subscription_token: params.subscriptionToken ?? null,
       provider_reference: params.reference ?? null,
       status: isActive ? "active" : params.status || "inactive",
       plan_key: "pro_monthly",
       price_id: params.planCode ?? null,
       current_period_end: params.nextPaymentDate ?? null,
-    },
-    { onConflict: "provider,provider_subscription_id" },
-  );
+    }).eq("id", existing.id);
+  } else {
+    let pendingQuery = admin.from("subscriptions").select("id").eq("user_id", params.userId).eq("provider", "paystack");
+    if (params.reference) pendingQuery = pendingQuery.eq("provider_reference", params.reference);
+    else if (params.customerCode) pendingQuery = pendingQuery.eq("provider_customer_id", params.customerCode);
+
+    const { data: pending } = await pendingQuery.order("created_at", { ascending: false }).limit(1).maybeSingle();
+
+    if (pending) {
+      await admin.from("subscriptions").update({
+        provider_customer_id: params.customerCode ?? null,
+        provider_subscription_id: params.subscriptionCode,
+        provider_subscription_token: params.subscriptionToken ?? null,
+        status: isActive ? "active" : params.status || "inactive",
+        plan_key: "pro_monthly",
+        price_id: params.planCode ?? null,
+        current_period_end: params.nextPaymentDate ?? null,
+      }).eq("id", pending.id);
+    } else {
+      await admin.from("subscriptions").insert({
+        user_id: params.userId,
+        provider: "paystack",
+        provider_customer_id: params.customerCode ?? null,
+        provider_subscription_id: params.subscriptionCode,
+        provider_subscription_token: params.subscriptionToken ?? null,
+        provider_reference: params.reference ?? null,
+        status: isActive ? "active" : params.status || "inactive",
+        plan_key: "pro_monthly",
+        price_id: params.planCode ?? null,
+        current_period_end: params.nextPaymentDate ?? null,
+      });
+    }
+  }
 }
 
 export class PaystackBillingProvider implements BillingProvider {
@@ -190,6 +224,14 @@ export class PaystackBillingProvider implements BillingProvider {
       callback_url: callbackUrl,
       reference,
       metadata: { userId: input.userId },
+    });
+
+    await createAdminClient().from("subscriptions").insert({
+      user_id: input.userId,
+      provider: "paystack",
+      provider_reference: reference,
+      status: "pending",
+      plan_key: "pro_monthly",
     });
 
     const url = payload.data?.authorization_url;
