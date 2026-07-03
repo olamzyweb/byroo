@@ -320,7 +320,9 @@ export class PaystackBillingProvider implements BillingProvider {
     const planCode = typeof plan.plan_code === "string" ? plan.plan_code : env.paystackProPlanCode || null;
     const nextPaymentDate = parseDate(chosen.next_payment_date);
     const chosenStatus = String(chosen.status ?? "active").toLowerCase();
-    const mappedStatus = chosenStatus === "active" ? "active" : "inactive";
+    const mappedStatus = (chosenStatus === "active" || chosenStatus === "non-renewing" || chosenStatus === "attention") 
+      ? "active" 
+      : "inactive";
 
     if (subscriptionCode && !subscriptionToken) {
       const full = await fetchSubscriptionByCode(subscriptionCode);
