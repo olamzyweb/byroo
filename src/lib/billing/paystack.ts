@@ -381,6 +381,15 @@ export class PaystackBillingProvider implements BillingProvider {
     }
     const planCode = typeof plan.plan_code === "string" ? plan.plan_code : env.paystackProPlanCode || null;
 
+    // VERY IMPORTANT: Save the customerCode to the pending row IMMEDIATELY so webhooks can find it!
+    if (customerCode) {
+      const admin = createAdminClient();
+      await admin.from("subscriptions")
+        .update({ provider_customer_id: customerCode })
+        .eq("provider", "paystack")
+        .eq("provider_reference", reference);
+    }
+
     if (!subscriptionCode) {
       if (customerCode) {
         await this.syncSubscriptionForUser({ userId, customerCode });
@@ -479,6 +488,15 @@ export class PaystackBillingProvider implements BillingProvider {
         subscriptionCode,
         hasSubscriptionToken: Boolean(subscriptionToken),
       });
+
+      if (customerCode && reference) {
+        // Hydrate the pending row with customerCode so subscription.create can resolve the userId
+        const admin = createAdminClient();
+        await admin.from("subscriptions")
+          .update({ provider_customer_id: customerCode })
+          .eq("provider", "paystack")
+          .eq("provider_reference", reference);
+      }
 
       if (!subscriptionCode) {
         if (customerCode) {
