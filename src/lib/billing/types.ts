@@ -12,7 +12,7 @@ export interface CancelSubscriptionInput {
 
 export interface BillingProvider {
   createCheckoutSession(input: CheckoutSessionInput): Promise<string>;
-  createPortalSession(customerId: string, returnUrl: string): Promise<string>;
+  createPortalSession(customerId: string, returnUrl: string, subscriptionId?: string): Promise<string>;
   cancelSubscription?(input: CancelSubscriptionInput): Promise<void>;
   verifyCheckoutReference?(reference: string): Promise<void>;
   syncSubscriptionForUser?(input: { userId: string; email?: string; customerCode?: string | null }): Promise<void>;

@@ -1,4 +1,4 @@
-﻿import { SubmitButton } from "@/components/submit-button";
+import { SubmitButton } from "@/components/submit-button";
 import { Badge, Card, HelperText, SectionHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { getBillingProvider } from "@/lib/billing";
@@ -59,12 +59,6 @@ export default async function BillingPage({
           <form action="/api/billing/checkout" method="post">
             <SubmitButton>Upgrade to Pro</SubmitButton>
           </form>
-        ) : isPaystack ? (
-          <form action="/api/billing/cancel" method="post">
-            <SubmitButton variant="danger">
-              Cancel subscription
-            </SubmitButton>
-          </form>
         ) : (
           <form action="/api/billing/portal" method="post">
             <SubmitButton>Open billing portal</SubmitButton>
@@ -72,11 +66,6 @@ export default async function BillingPage({
         )}
 
         {subscription?.status ? <p className="text-sm text-[var(--text-soft)]">Subscription: {subscription.status}</p> : null}
-        {isPaystack && profile?.plan === "pro" ? (
-          <p className="text-xs text-[var(--text-soft)]">
-            Paystack does not provide a hosted billing portal. Use cancellation above.
-          </p>
-        ) : null}
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2">

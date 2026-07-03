@@ -15,7 +15,7 @@ export async function POST() {
 
   const { data: subscription } = await supabase
     .from("subscriptions")
-    .select("provider_customer_id")
+    .select("provider_customer_id, provider_subscription_id")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(1)
@@ -29,7 +29,11 @@ export async function POST() {
   const provider = getBillingProvider();
 
   try {
-    const portalUrl = await provider.createPortalSession(customerId, `${env.appUrl}/dashboard/billing`);
+    const portalUrl = await provider.createPortalSession(
+      customerId,
+      `${env.appUrl}/dashboard/billing`,
+      subscription?.provider_subscription_id ?? undefined
+    );
     return NextResponse.redirect(portalUrl);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to open portal";

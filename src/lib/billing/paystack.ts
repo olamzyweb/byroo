@@ -144,6 +144,11 @@ async function upsertPaystackSubscription(params: {
   planCode?: string | null;
   nextPaymentDate?: string | null;
 }) {
+  if (!params.subscriptionCode) {
+    console.error("[billing] Refusing to upsert subscription without a provider_subscription_id");
+    return;
+  }
+
   const admin = createAdminClient();
   const isActive = params.status === "active" || params.status === "success";
   await admin.from("profiles").update({ plan: isActive ? "pro" : "free" }).eq("id", params.userId);
@@ -194,8 +199,17 @@ export class PaystackBillingProvider implements BillingProvider {
     return url;
   }
 
-  async createPortalSession(_customerId: string, returnUrl: string): Promise<string> {
-    return `${returnUrl}?message=Manage+subscription+with+cancel+button+below`;
+  async createPortalSession(_customerId: string, _returnUrl: string, subscriptionId?: string): Promise<string> {
+    if (!subscriptionId) {
+      throw new Error("Missing subscription ID to open Paystack portal");
+    }
+    const payload = await paystackRequest<{ status: boolean; message: string; data?: { link: string } }>(
+      `/subscription/${encodeURIComponent(subscriptionId)}/manage/link/`
+    );
+    if (!payload.status || !payload.data?.link) {
+      throw new Error(payload.message || "Failed to generate Paystack manage link");
+    }
+    return payload.data.link;
   }
 
   async cancelSubscription(input: CancelSubscriptionInput): Promise<void> {
@@ -244,6 +258,16 @@ export class PaystackBillingProvider implements BillingProvider {
     });
     const chosen = preferred ?? latestWithToken ?? null;
     if (!chosen) {
+      // If Paystack has no active subscriptions for this customer, 
+      // downgrade the user locally to fix their broken 'active' state.
+      const adminClient = createAdminClient();
+      await adminClient.from("profiles").update({ plan: "free" }).eq("id", input.userId);
+      await adminClient
+        .from("subscriptions")
+        .update({ status: "inactive" })
+        .eq("user_id", input.userId)
+        .eq("provider", "paystack")
+        .eq("status", "active");
       return;
     }
 
@@ -263,9 +287,8 @@ export class PaystackBillingProvider implements BillingProvider {
       }
     }
 
-    if (!subscriptionCode || !subscriptionToken) {
-      return;
-    }
+    // Do not abort if subscriptionToken is missing! 
+    // We still want to sync the subscriptionCode so the dashboard shows the correct state.
 
     await upsertPaystackSubscription({
       userId: input.userId,
@@ -287,7 +310,7 @@ export class PaystackBillingProvider implements BillingProvider {
     const plan = (data.plan ?? {}) as Record<string, unknown>;
     const subscription = (data.subscription ?? {}) as Record<string, unknown>;
 
-    let userId = typeof metadata.userId === "string" ? metadata.userId : null;
+    const userId = typeof metadata.userId === "string" ? metadata.userId : null;
 
     if (!userId) {
       return;
@@ -315,6 +338,13 @@ export class PaystackBillingProvider implements BillingProvider {
       }
     }
     const planCode = typeof plan.plan_code === "string" ? plan.plan_code : env.paystackProPlanCode || null;
+
+    if (!subscriptionCode) {
+      if (customerCode) {
+        await this.syncSubscriptionForUser({ userId, customerCode });
+      }
+      return;
+    }
 
     await upsertPaystackSubscription({
       userId,
@@ -407,6 +437,14 @@ export class PaystackBillingProvider implements BillingProvider {
         subscriptionCode,
         hasSubscriptionToken: Boolean(subscriptionToken),
       });
+
+      if (!subscriptionCode) {
+        if (customerCode) {
+          await this.syncSubscriptionForUser({ userId, customerCode });
+        }
+        return;
+      }
+
       await upsertPaystackSubscription({
         userId,
         customerCode,
@@ -417,10 +455,6 @@ export class PaystackBillingProvider implements BillingProvider {
         planCode,
         nextPaymentDate: nextPayment,
       });
-      if (event === "charge.success" && customerCode && (!subscriptionCode || !subscriptionToken)) {
-        // subscription.create may arrive without resolvable user context; hydrate by customer now.
-        await this.syncSubscriptionForUser({ userId, customerCode });
-      }
       return;
     }
 
@@ -433,6 +467,14 @@ export class PaystackBillingProvider implements BillingProvider {
         subscriptionCode,
         hasSubscriptionToken: Boolean(subscriptionToken),
       });
+
+      if (!subscriptionCode) {
+        if (customerCode) {
+          await this.syncSubscriptionForUser({ userId, customerCode });
+        }
+        return;
+      }
+
       await upsertPaystackSubscription({
         userId,
         customerCode,
