@@ -113,7 +113,7 @@ export default async function AdminUsersPage({
                         <input type="hidden" name="targetUserId" value={profile.id} />
                         <input type="hidden" name="mode" value={profile.badge_revoked ? "restore" : "revoke"} />
                         <input type="hidden" name="returnTo" value={`/admin/users${query ? `?q=${encodeURIComponent(query)}` : ""}`} />
-                        <SubmitButton size="sm" variant={profile.badge_revoked ? "success" : "danger"} pendingText="Saving...">
+                        <SubmitButton size="sm" variant={profile.badge_revoked ? "secondary" : "danger"} pendingText="Saving...">
                           {profile.badge_revoked ? "Restore Badge" : "Revoke Badge"}
                         </SubmitButton>
                       </form>
