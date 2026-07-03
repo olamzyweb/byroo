@@ -177,18 +177,6 @@ export class PaystackBillingProvider implements BillingProvider {
     }
     const callbackUrl = env.paystackCallbackUrl || input.successUrl;
     const reference = `byroo_${input.userId}_${randomUUID()}`;
-    const admin = createAdminClient();
-
-    await admin.from("subscriptions").upsert(
-      {
-        user_id: input.userId,
-        provider: "paystack",
-        provider_reference: reference,
-        status: "pending",
-        plan_key: "pro_monthly",
-      },
-      { onConflict: "provider,provider_subscription_id" },
-    );
 
     const payload = await paystackRequest<PaystackInitializeResponse>("/transaction/initialize", {
       email: input.email,
@@ -299,20 +287,7 @@ export class PaystackBillingProvider implements BillingProvider {
     const plan = (data.plan ?? {}) as Record<string, unknown>;
     const subscription = (data.subscription ?? {}) as Record<string, unknown>;
 
-    const admin = createAdminClient();
     let userId = typeof metadata.userId === "string" ? metadata.userId : null;
-
-    if (!userId) {
-      const { data: subByRef } = await admin
-        .from("subscriptions")
-        .select("user_id")
-        .eq("provider", "paystack")
-        .eq("provider_reference", reference)
-        .maybeSingle();
-      if (subByRef?.user_id) {
-        userId = String(subByRef.user_id);
-      }
-    }
 
     if (!userId) {
       return;
@@ -341,20 +316,16 @@ export class PaystackBillingProvider implements BillingProvider {
     }
     const planCode = typeof plan.plan_code === "string" ? plan.plan_code : env.paystackProPlanCode || null;
 
-    await admin.from("profiles").update({ plan: isSuccess ? "pro" : "free" }).eq("id", userId);
-
-    await admin
-      .from("subscriptions")
-      .update({
-        provider_customer_id: customerCode,
-        provider_subscription_id: subscriptionCode,
-        provider_subscription_token: subscriptionToken,
-        status: isSuccess ? "active" : "inactive",
-        price_id: planCode,
-        current_period_end: nextPaymentDate,
-      })
-      .eq("provider", "paystack")
-      .eq("provider_reference", reference);
+    await upsertPaystackSubscription({
+      userId,
+      customerCode,
+      subscriptionCode,
+      subscriptionToken,
+      reference,
+      status: isSuccess ? "active" : "inactive",
+      planCode,
+      nextPaymentDate,
+    });
   }
 
   async handleWebhook(rawBody: string, headers: Headers): Promise<void> {
