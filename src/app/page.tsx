@@ -4,6 +4,7 @@ import { Badge, ButtonLink, Card, Avatar } from "@/components/ui";
 import { BrandLogo } from "@/components/brand-logo";
 import { motion, type Variants } from "framer-motion";
 import { CheckCircle2, MessageCircle, ArrowRight, Check, Star } from "lucide-react";
+import Link from "next/link";
 
 const heroStats = [
   { label: "Profiles launched", value: "18k+" },
