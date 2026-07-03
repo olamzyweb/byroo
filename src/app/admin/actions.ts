@@ -155,7 +155,7 @@ export async function replayBillingEventAction(formData: FormData) {
     redirect(`${returnTo}?error=Failed+to+replay+event`);
   }
 
-  await writeAuditLog(adminUser.id, "replay_billing_event", null, { eventId });
+  await writeAuditLog(adminUser.id, "replay_billing_event", eventId, { eventId });
 
   // Optional: ping the cron endpoint async to speed it up
   fetch(`${env.appUrl}/api/billing/cron/process-events?token=${env.socialSyncCronSecret}`).catch(() => {});
