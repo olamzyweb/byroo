@@ -88,3 +88,33 @@ export async function syncPaystackSubscriptionAction(formData: FormData) {
   revalidatePath("/admin/subscriptions");
   redirect(`${returnTo}?message=Subscription+sync+requested`);
 }
+
+export async function deleteUserAction(formData: FormData) {
+  const adminUser = await requireAdminUser();
+  const targetUserId = String(formData.get("targetUserId") ?? "").trim();
+  const returnTo = parseReturnTo(formData, "/admin/users");
+
+  if (!targetUserId) {
+    redirect(`${returnTo}?error=Missing+target+user`);
+  }
+
+  if (targetUserId === adminUser.id) {
+    redirect(`${returnTo}?error=You+cannot+delete+your+own+account`);
+  }
+
+  const admin = createAdminClient();
+  
+  // Delete the user completely from Supabase Auth. 
+  // Any foreign keys in public schema with ON DELETE CASCADE will automatically be cleaned up.
+  const { error } = await admin.auth.admin.deleteUser(targetUserId);
+  
+  if (error) {
+    redirect(`${returnTo}?error=Failed+to+delete+user:+${encodeURIComponent(error.message)}`);
+  }
+
+  await writeAuditLog(adminUser.id, "delete_user", targetUserId, {});
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/users");
+  redirect(`${returnTo}?message=User+deleted+successfully`);
+}

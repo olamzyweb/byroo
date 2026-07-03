@@ -1,4 +1,5 @@
 import { setAdminAccessAction, setUserPlanAction } from "@/app/admin/actions";
+import { DeleteUserForm } from "./delete-user-form";
 import { SubmitButton } from "@/components/submit-button";
 import { Badge, Card, HelperText, Input, SectionHeader } from "@/components/ui";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -98,6 +99,10 @@ export default async function AdminUsersPage({
                         {isAdmin ? "Revoke admin" : "Grant admin"}
                       </SubmitButton>
                     </form>
+                    <DeleteUserForm 
+                      targetUserId={profile.id} 
+                      returnTo={`/admin/users${query ? `?q=${encodeURIComponent(query)}` : ""}`} 
+                    />
                   </td>
                 </tr>
               );

@@ -2,6 +2,7 @@
 
 import { Badge, ButtonLink, Card, Avatar } from "@/components/ui";
 import { BrandLogo } from "@/components/brand-logo";
+import { ParticleSwarm } from "@/components/particle-swarm";
 import { motion, type Variants } from "framer-motion";
 import { CheckCircle2, MessageCircle, ArrowRight, Check, Star } from "lucide-react";
 import Link from "next/link";
@@ -105,11 +106,16 @@ const fadeUp: Variants = {
 };
 
 export default function Home() {
+  const ENABLE_PARTICLE_SWARM = true; // Toggle this to false if it causes lag or if you dislike it
+
   return (
-    <div className="bg-[var(--bg)] min-h-screen text-[var(--text-strong)] font-sans">
+    <div className="bg-[var(--bg)] min-h-screen text-[var(--text-strong)] font-sans relative overflow-hidden">
       
+      {/* Particle Background */}
+      <ParticleSwarm enabled={ENABLE_PARTICLE_SWARM} />
+
       {/* HEADER */}
-      <header className="mx-auto w-full max-w-7xl px-5 py-6 md:px-10 flex items-center justify-between">
+      <header className="relative z-10 mx-auto w-full max-w-7xl px-5 py-6 md:px-10 flex items-center justify-between">
         <BrandLogo />
         <div className="flex items-center gap-4">
           <ButtonLink href="/login" variant="ghost" size="sm" className="hidden sm:inline-flex">
@@ -121,7 +127,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main>
+      <main className="relative z-10">
         {/* HERO SECTION */}
         <section className="mx-auto w-full max-w-7xl px-5 pb-20 pt-10 md:px-10 md:pt-20">
           <div className="grid gap-16 md:grid-cols-[1.1fr_0.9fr] md:items-center">
