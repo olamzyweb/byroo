@@ -138,3 +138,28 @@ export async function toggleBadgeRevocationAction(formData: FormData) {
   revalidatePath("/admin/users");
   redirect(`${returnTo}?message=Badge+status+updated`);
 }
+
+export async function replayBillingEventAction(formData: FormData) {
+  const adminUser = await requireAdminUser();
+  const eventId = String(formData.get("eventId") ?? "").trim();
+  const returnTo = parseReturnTo(formData, "/admin/billing-logs");
+
+  if (!eventId) {
+    redirect(`${returnTo}?error=Missing+event+ID`);
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin.from("billing_events").update({ status: "pending", error_message: null }).eq("id", eventId);
+
+  if (error) {
+    redirect(`${returnTo}?error=Failed+to+replay+event`);
+  }
+
+  await writeAuditLog(adminUser.id, "replay_billing_event", null, { eventId });
+
+  // Optional: ping the cron endpoint async to speed it up
+  fetch(`${env.appUrl}/api/billing/cron/process-events?token=${env.socialSyncCronSecret}`).catch(() => {});
+
+  revalidatePath("/admin/billing-logs");
+  redirect(`${returnTo}?message=Event+queued+for+replay`);
+}

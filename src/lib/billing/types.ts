@@ -16,5 +16,6 @@ export interface BillingProvider {
   cancelSubscription?(input: CancelSubscriptionInput): Promise<void>;
   verifyCheckoutReference?(reference: string): Promise<void>;
   syncSubscriptionForUser?(input: { userId: string; email?: string; customerCode?: string | null }): Promise<void>;
+  processBillingEvent?(eventId: string, payload: any): Promise<void>;
   handleWebhook(rawBody: string, headers: Headers): Promise<void>;
 }

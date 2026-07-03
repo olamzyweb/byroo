@@ -436,15 +436,9 @@ export class PaystackBillingProvider implements BillingProvider {
     });
   }
 
-  async handleWebhook(rawBody: string, headers: Headers): Promise<void> {
-    const hasSignature = Boolean(headers.get("x-paystack-signature"));
-    const signatureValid = verifyPaystackSignature(rawBody, headers);
-    debugPaystackWebhook("webhook.signature", { hasSignature, signatureValid });
-    if (!signatureValid) {
-      throw new Error("Invalid Paystack webhook signature");
-    }
 
-    const payload = JSON.parse(rawBody) as PaystackEventPayload;
+
+  async processBillingEvent(eventId: string, payload: any): Promise<void> {
     const event = payload.event;
     const data = payload.data ?? {};
     const admin = createAdminClient();
@@ -458,21 +452,25 @@ export class PaystackBillingProvider implements BillingProvider {
     const customerCode = typeof customer.customer_code === "string" ? customer.customer_code : null;
     const subscriptionCode = typeof data.subscription_code === "string" ? data.subscription_code : null;
     let subscriptionToken = typeof data.email_token === "string" ? data.email_token : null;
+    
     if (subscriptionCode && !subscriptionToken) {
       const full = await fetchSubscriptionByCode(subscriptionCode);
       if (full && typeof full.email_token === "string") {
         subscriptionToken = full.email_token;
       }
     }
+    
     const planCode = typeof plan.plan_code === "string" ? plan.plan_code : env.paystackProPlanCode || null;
     const nextPayment = parseDate(data.next_payment_date);
-    debugPaystackWebhook("webhook.payload", {
+
+    debugPaystackWebhook("process.payload", {
+      eventId,
       event,
       reference,
       customerCode,
       subscriptionCode,
       hasSubscriptionToken: Boolean(subscriptionToken),
-      metadataUserId: typeof metadata.userId === "string" ? metadata.userId : null,
+      metadataUserId: userId,
     });
 
     if (!userId && reference) {
@@ -502,12 +500,13 @@ export class PaystackBillingProvider implements BillingProvider {
     }
 
     if (!userId) {
-      debugPaystackWebhook("webhook.user.unresolved", { event, reference, customerCode });
+      debugPaystackWebhook("process.user.unresolved", { eventId, event, reference, customerCode });
       return;
     }
 
     if (event === "charge.success" || event === "subscription.create" || event === "invoice.update") {
-      debugPaystackWebhook("webhook.subscription.upsert", {
+      debugPaystackWebhook("process.subscription.upsert", {
+        eventId,
         userId,
         status: "active",
         reference,
@@ -517,8 +516,6 @@ export class PaystackBillingProvider implements BillingProvider {
       });
 
       if (customerCode && reference) {
-        // Hydrate the pending row with customerCode so subscription.create can resolve the userId
-        const admin = createAdminClient();
         await admin.from("subscriptions")
           .update({ provider_customer_id: customerCode })
           .eq("provider", "paystack")
@@ -529,7 +526,6 @@ export class PaystackBillingProvider implements BillingProvider {
         if (customerCode) {
           await this.syncSubscriptionForUser({ userId, customerCode });
         }
-        // Do NOT return here! Proceed to activate the user using the reference.
       }
 
       await upsertPaystackSubscription({
@@ -546,17 +542,44 @@ export class PaystackBillingProvider implements BillingProvider {
     }
 
     if (event === "subscription.not_renew" || event === "subscription.disable" || event === "invoice.payment_failed") {
-      debugPaystackWebhook("webhook.subscription.sync", {
+      debugPaystackWebhook("process.subscription.sync", {
+        eventId,
         userId,
         status: "syncing",
         reference,
         customerCode,
         subscriptionCode,
-        hasSubscriptionToken: Boolean(subscriptionToken),
       });
 
       await this.syncSubscriptionForUser({ userId, customerCode });
       return;
+    }
+  }
+
+  async handleWebhook(rawBody: string, headers: Headers): Promise<void> {
+    const hasSignature = Boolean(headers.get("x-paystack-signature"));
+    const signatureValid = verifyPaystackSignature(rawBody, headers);
+    debugPaystackWebhook("webhook.signature", { hasSignature, signatureValid });
+    if (!signatureValid) {
+      throw new Error("Invalid Paystack webhook signature");
+    }
+
+    const payload = JSON.parse(rawBody) as PaystackEventPayload;
+    const admin = createAdminClient();
+    
+    // Instead of processing synchronously, instantly queue it and return 200 OK.
+    const { error } = await admin.from("billing_events").insert({
+      provider: "paystack",
+      event_type: payload.event,
+      reference: payload.data?.reference ?? null,
+      customer_id: (payload.data?.customer as any)?.customer_code ?? null,
+      payload: payload,
+      status: "pending"
+    });
+
+    if (error) {
+      console.error("[billing] Failed to queue webhook event:", error);
+      throw new Error("Failed to queue webhook event");
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getBillingProvider } from "@/lib/billing";
 import { createClient } from "@/lib/supabase/server";
 import { env } from "@/lib/config";
@@ -109,6 +109,19 @@ export async function POST() {
     const provider = getBillingProvider();
     if (!provider.cancelSubscription) {
       return NextResponse.redirect(new URL("/dashboard/billing?error=Cancellation+not+supported+for+provider", env.appUrl));
+    }
+
+    if (!subscription.provider_subscription_token && providerKey === "paystack") {
+      // If we don't have the email_token, we can't use the direct cancel API. 
+      // Fallback to sending them to the Paystack Customer Portal to cancel manually.
+      if (provider.createPortalSession) {
+        const portalUrl = await provider.createPortalSession(
+          subscription.provider_customer_id ?? "",
+          `${env.appUrl}/dashboard/billing`,
+          subscription.provider_subscription_id
+        );
+        return NextResponse.redirect(portalUrl);
+      }
     }
 
     await provider.cancelSubscription({
