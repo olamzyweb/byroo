@@ -42,6 +42,7 @@ export interface Profile {
   branding_hidden: boolean;
   plan: Plan;
   onboarded: boolean;
+  badge_revoked: boolean;
 }
 
 export interface LinkItem {
