@@ -75,7 +75,7 @@ export default async function AdminUsersPage({
                     </div>
                     {profile.plan === "pro" && (
                       <div>
-                        <Badge tone={profile.badge_revoked ? "danger" : "brand"}>
+                        <Badge tone={profile.badge_revoked ? "warning" : "brand"}>
                           {profile.badge_revoked ? "badge revoked" : "badge active"}
                         </Badge>
                       </div>
