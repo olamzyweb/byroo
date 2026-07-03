@@ -26,6 +26,15 @@
   --color-foreground: var(--text-strong);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  
+  --animate-shine: shine 4s ease-in-out infinite;
+  --animate-spin-slow: spin 6s linear infinite;
+}
+
+@keyframes shine {
+  0% { transform: translateX(-150%) skewX(-25deg); opacity: 0; }
+  10% { opacity: 1; }
+  20%, 100% { transform: translateX(250%) skewX(-25deg); opacity: 0; }
 }
 
 html,

@@ -1,4 +1,5 @@
 import { ButtonLink, Card, EmptyState, SectionHeader, StatCard } from "@/components/ui";
+import { BadgeCheck, Lock } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
 
@@ -21,7 +22,7 @@ export default async function DashboardPage() {
     supabase.from("social_profiles").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("sync_status", "success"),
     supabase
       .from("profiles")
-      .select("display_name, username, plan, onboarded, bio, avatar_url, whatsapp_number, header_image_url")
+      .select("display_name, username, plan, onboarded, bio, avatar_url, whatsapp_number, header_image_url, badge_revoked")
       .eq("id", user.id)
       .single(),
   ]);
@@ -85,6 +86,39 @@ export default async function DashboardPage() {
         <StatCard label="Portfolio" value={portfolioCount ?? 0} />
         <StatCard label="Catalog Items" value={catalogCount ?? 0} />
       </div>
+
+      <Card>
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--text-strong)] flex items-center gap-2">
+              Verified Vendor Badge
+              {profile?.plan === "pro" && !profile?.badge_revoked ? (
+                <BadgeCheck className="h-5 w-5 text-white fill-blue-500" />
+              ) : (
+                <Lock className="h-4 w-4 text-[var(--text-soft)]" />
+              )}
+            </h3>
+            {profile?.plan === "pro" && !profile?.badge_revoked ? (
+              <p className="mt-1 text-xs text-[var(--text-soft)]">
+                Your profile is verified. The blue checkmark is currently visible to your buyers, building trust and helping you close more sales.
+              </p>
+            ) : profile?.badge_revoked ? (
+              <p className="mt-1 text-xs text-red-500">
+                Your verified badge has been revoked by Byroo administration. Please contact support.
+              </p>
+            ) : (
+              <p className="mt-1 text-xs text-[var(--text-soft)]">
+                Upgrade to Pro to instantly unlock your blue Verified Vendor badge. Show buyers you are a trusted, premium business.
+              </p>
+            )}
+          </div>
+          {profile?.plan !== "pro" && (
+            <ButtonLink href="/dashboard/billing" size="sm">
+              Unlock Badge
+            </ButtonLink>
+          )}
+        </div>
+      </Card>
 
       <Card>
         <div className="flex items-center justify-between gap-3">

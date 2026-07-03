@@ -1,9 +1,10 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProfileViewTracker } from "@/components/public/profile-view-tracker";
 import { ShareProfileButton } from "@/components/public/share-profile-button";
 import { Avatar, Badge } from "@/components/ui";
+import { BadgeCheck } from "lucide-react";
 import { env } from "@/lib/config";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { buildItemWhatsAppMessage, buildServiceWhatsAppMessage, toWhatsAppLink } from "@/lib/whatsapp";
@@ -244,13 +245,54 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
             </div>
 
             <div className="absolute -bottom-12 left-1/2 z-10 -translate-x-1/2">
-              <div className="rounded-full border-4 border-white/95 bg-white shadow-[0_8px_22px_rgba(15,23,42,0.22)]">
-                <Avatar name={data.profile.display_name} src={data.profile.avatar_url} size="lg" />
+              <div 
+                className={`relative rounded-full p-1.5 shadow-[0_8px_22px_rgba(15,23,42,0.22)] ${
+                  data.profile.plan === "pro" && !data.profile.badge_revoked ? "" : "bg-white border-4 border-white/95"
+                }`}
+              >
+                {data.profile.plan === "pro" && !data.profile.badge_revoked && (
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 animate-spin-slow" />
+                )}
+                <div className={`relative z-10 rounded-full overflow-hidden ${data.profile.plan === "pro" && !data.profile.badge_revoked ? "border-4 border-white bg-white" : ""}`}>
+                  <Avatar name={data.profile.display_name} src={data.profile.avatar_url} size="lg" />
+                </div>
               </div>
             </div>
           </div>
 
-          <h1 className="mt-14 text-3xl font-semibold">{data.profile.display_name}</h1>
+          <h1 className="mt-14 text-3xl font-semibold flex items-center justify-center gap-2">
+            <span>{data.profile.display_name}</span>
+            {data.profile.plan === "pro" && !data.profile.badge_revoked && (
+              <div title="Verified Pro Vendor" className="relative flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full drop-shadow-[0_0_6px_rgba(217,119,6,0.3)] translate-y-[3px]">
+                {/* Custom Metallic Gold Verified Badge */}
+                <svg viewBox="0 0 24 24" className="h-full w-full" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#FBBF24" /> {/* amber-400 */}
+                      <stop offset="50%" stopColor="#D97706" /> {/* amber-600 */}
+                      <stop offset="100%" stopColor="#92400E" /> {/* amber-800 */}
+                    </linearGradient>
+                  </defs>
+                  {/* Outer Decagon/Circle shape */}
+                  <path 
+                    fill="url(#goldGradient)"
+                    d="M10.158 1.455c.983-.794 2.701-.794 3.684 0l1.791 1.446c.356.287.79.467 1.25.517l2.285.247c1.256.136 2.106 1.34 1.954 2.595l-.278 2.284a2.754 2.754 0 0 0 .167 1.339l.942 2.102c.516 1.152.016 2.534-1.077 3.01l-2.095.91a2.75 2.75 0 0 0-1.196 1.197l-.91 2.094c-.476 1.093-1.858 1.593-3.01 1.077l-2.102-.942a2.75 2.75 0 0 0-1.34-.167l-2.284.278c-1.255.152-2.459-.698-2.595-1.954l-.247-2.285a2.75 2.75 0 0 0-.517-1.25L1.455 13.84C.66 12.858.66 11.14 1.455 10.16l1.446-1.792c.287-.356.467-.79.517-1.25l.247-2.284c.136-1.256 1.34-2.106 2.595-1.954l2.284.278c.46.056.931-.001 1.34-.167l2.102-.942c1.152-.516 2.534-.016 3.01 1.077l.91 2.095c.261.6.6 1.127 1.197 1.196l2.094.91c1.093.476 1.593 1.858 1.077 3.01l-.942 2.102a2.75 2.75 0 0 0-.167 1.34l.278 2.284c.152 1.255-.698 2.459-1.954 2.595l-2.285.247a2.75 2.75 0 0 0-1.25.517l-1.792 1.446Z"
+                  />
+                  {/* Inner White Checkmark */}
+                  <path 
+                    d="M8.5 12.5L11 15L15.5 9.5" 
+                    stroke="white" 
+                    strokeWidth="2.5" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                    fill="none"
+                  />
+                </svg>
+                {/* Shine animation layer */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine w-full h-full mix-blend-overlay" />
+              </div>
+            )}
+          </h1>
           {data.profile.bio ? <p className="mx-auto mt-2 max-w-md text-sm" style={{ color: t.muted }}>{data.profile.bio}</p> : null}
           <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
             <Badge tone="brand">/{data.profile.username}</Badge>

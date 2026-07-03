@@ -118,3 +118,23 @@ export async function deleteUserAction(formData: FormData) {
   revalidatePath("/admin/users");
   redirect(`${returnTo}?message=User+deleted+successfully`);
 }
+
+export async function toggleBadgeRevocationAction(formData: FormData) {
+  const adminUser = await requireAdminUser();
+  const targetUserId = String(formData.get("targetUserId") ?? "").trim();
+  const mode = String(formData.get("mode") ?? "").trim(); // "revoke" or "restore"
+  const returnTo = parseReturnTo(formData, "/admin/users");
+
+  if (!targetUserId || (mode !== "revoke" && mode !== "restore")) {
+    redirect(`${returnTo}?error=Invalid+badge+revocation+request`);
+  }
+
+  const badge_revoked = mode === "revoke";
+  const admin = createAdminClient();
+  
+  await admin.from("profiles").update({ badge_revoked }).eq("id", targetUserId);
+  await writeAuditLog(adminUser.id, "toggle_badge_revocation", targetUserId, { badge_revoked });
+
+  revalidatePath("/admin/users");
+  redirect(`${returnTo}?message=Badge+status+updated`);
+}

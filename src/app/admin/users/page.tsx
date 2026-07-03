@@ -1,4 +1,4 @@
-import { setAdminAccessAction, setUserPlanAction } from "@/app/admin/actions";
+import { setAdminAccessAction, setUserPlanAction, toggleBadgeRevocationAction } from "@/app/admin/actions";
 import { DeleteUserForm } from "./delete-user-form";
 import { SubmitButton } from "@/components/submit-button";
 import { Badge, Card, HelperText, Input, SectionHeader } from "@/components/ui";
@@ -15,7 +15,7 @@ export default async function AdminUsersPage({
 
   let request = admin
     .from("profiles")
-    .select("id, email, username, display_name, plan, onboarded, created_at")
+    .select("id, email, username, display_name, plan, onboarded, created_at, badge_revoked")
     .order("created_at", { ascending: false })
     .limit(100);
 
@@ -69,8 +69,17 @@ export default async function AdminUsersPage({
                   <td className="px-4 py-3">
                     <Badge tone={profile.plan === "pro" ? "brand" : "neutral"}>{profile.plan}</Badge>
                   </td>
-                  <td className="px-4 py-3">
-                    <Badge tone={profile.onboarded ? "success" : "warning"}>{profile.onboarded ? "onboarded" : "pending"}</Badge>
+                  <td className="px-4 py-3 space-y-1">
+                    <div>
+                      <Badge tone={profile.onboarded ? "success" : "warning"}>{profile.onboarded ? "onboarded" : "pending"}</Badge>
+                    </div>
+                    {profile.plan === "pro" && (
+                      <div>
+                        <Badge tone={profile.badge_revoked ? "danger" : "brand"}>
+                          {profile.badge_revoked ? "badge revoked" : "badge active"}
+                        </Badge>
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <Badge tone={isAdmin ? "brand" : "neutral"}>{isAdmin ? "admin" : "user"}</Badge>
@@ -99,6 +108,16 @@ export default async function AdminUsersPage({
                         {isAdmin ? "Revoke admin" : "Grant admin"}
                       </SubmitButton>
                     </form>
+                    {profile.plan === "pro" && (
+                      <form action={toggleBadgeRevocationAction}>
+                        <input type="hidden" name="targetUserId" value={profile.id} />
+                        <input type="hidden" name="mode" value={profile.badge_revoked ? "restore" : "revoke"} />
+                        <input type="hidden" name="returnTo" value={`/admin/users${query ? `?q=${encodeURIComponent(query)}` : ""}`} />
+                        <SubmitButton size="sm" variant={profile.badge_revoked ? "success" : "danger"} pendingText="Saving...">
+                          {profile.badge_revoked ? "Restore Badge" : "Revoke Badge"}
+                        </SubmitButton>
+                      </form>
+                    )}
                     <DeleteUserForm 
                       targetUserId={profile.id} 
                       returnTo={`/admin/users${query ? `?q=${encodeURIComponent(query)}` : ""}`} 
