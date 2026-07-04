@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getBillingProvider } from "@/lib/billing";
 import { requireAdminUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { env } from "@/lib/config";
 
 async function writeAuditLog(actorUserId: string, action: string, targetUserId: string, metadata: Record<string, unknown>) {
   const admin = createAdminClient();
