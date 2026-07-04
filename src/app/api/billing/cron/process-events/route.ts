@@ -60,28 +60,32 @@ export async function GET(request: Request) {
   try {
     const now = new Date().toISOString();
     
-    // Find all 'pro' users whose subscription period has definitively ended
-    const { data: expiredSubs } = await admin
-      .from("subscriptions")
-      .select("user_id, current_period_end")
-      .eq("status", "inactive")
-      .not("current_period_end", "is", null)
-      .lt("current_period_end", now);
-      
+    // Find all 'pro' users
     const { data: proProfiles } = await admin
       .from("profiles")
       .select("id")
       .eq("plan", "pro");
 
-    const proUserIds = new Set((proProfiles ?? []).map(p => p.id));
-    const toDowngrade = (expiredSubs ?? [])
-      .filter(sub => proUserIds.has(sub.user_id))
-      .map(sub => sub.user_id);
+    const proUserIds = (proProfiles ?? []).map(p => p.id);
 
-    if (toDowngrade.length > 0) {
-      await admin.from("profiles").update({ plan: "free" }).in("id", toDowngrade);
-      sweepCount = toDowngrade.length;
-      console.info(`[billing-cron] Swept and downgraded ${sweepCount} expired accounts.`);
+    if (proUserIds.length > 0) {
+      // A user is valid if they have AT LEAST ONE subscription that is active OR hasn't expired yet
+      const { data: validSubs } = await admin
+        .from("subscriptions")
+        .select("user_id")
+        .in("user_id", proUserIds)
+        .or(`status.eq.active,current_period_end.gt.${now}`);
+
+      const validUserIds = new Set((validSubs ?? []).map(s => s.user_id));
+
+      // Anyone who is Pro but NOT in the valid list gets downgraded
+      const toDowngrade = proUserIds.filter(id => !validUserIds.has(id));
+
+      if (toDowngrade.length > 0) {
+        await admin.from("profiles").update({ plan: "free" }).in("id", toDowngrade);
+        sweepCount = toDowngrade.length;
+        console.info(`[billing-cron] Swept and downgraded ${sweepCount} expired accounts.`);
+      }
     }
   } catch (err) {
     console.error("[billing-cron] Expiration sweep failed:", err);

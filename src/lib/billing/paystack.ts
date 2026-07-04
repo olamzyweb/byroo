@@ -461,7 +461,14 @@ export class PaystackBillingProvider implements BillingProvider {
     }
     
     const planCode = typeof plan.plan_code === "string" ? plan.plan_code : env.paystackProPlanCode || null;
-    const nextPayment = parseDate(data.next_payment_date);
+    let nextPayment = parseDate(data.next_payment_date);
+
+    // 32-Day Shield: If Paystack processed a charge but didn't provide an expiration date
+    if (!nextPayment && event === "charge.success") {
+      const date = new Date();
+      date.setDate(date.getDate() + 32); // 30 days + 2 day grace period
+      nextPayment = date.toISOString();
+    }
 
     debugPaystackWebhook("process.payload", {
       eventId,
