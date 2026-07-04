@@ -163,11 +163,11 @@ export default function Home() {
               
               <motion.div variants={fadeUp} className="mt-10 flex items-center gap-4 border-t border-[var(--border-subtle)] pt-6">
                 <div className="flex -space-x-3">
-                  <Avatar name="A" size="sm" className="border-2 border-white" />
-                  <Avatar name="B" size="sm" className="border-2 border-white bg-indigo-100 text-indigo-700" />
-                  <Avatar name="C" size="sm" className="border-2 border-white bg-rose-100 text-rose-700" />
-                  <Avatar name="D" size="sm" className="border-2 border-white bg-emerald-100 text-emerald-700" />
-                  <Avatar name="E" size="sm" className="border-2 border-white bg-amber-100 text-amber-700" />
+                  <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=64&h=64&q=80" alt="Professional" className="w-9 h-9 rounded-full border-2 border-[var(--bg)] object-cover relative z-50 shadow-sm" />
+                  <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=64&h=64&q=80" alt="Professional" className="w-9 h-9 rounded-full border-2 border-[var(--bg)] object-cover relative z-40 shadow-sm" />
+                  <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=64&h=64&q=80" alt="Professional" className="w-9 h-9 rounded-full border-2 border-[var(--bg)] object-cover relative z-30 shadow-sm" />
+                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=64&h=64&q=80" alt="Professional" className="w-9 h-9 rounded-full border-2 border-[var(--bg)] object-cover relative z-20 shadow-sm" />
+                  <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=64&h=64&q=80" alt="Professional" className="w-9 h-9 rounded-full border-2 border-[var(--bg)] object-cover relative z-10 shadow-sm" />
                 </div>
                 <div className="text-sm font-medium text-[var(--text-soft)]">
                   <span className="flex items-center gap-1 text-amber-500 mb-0.5">
