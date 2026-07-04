@@ -1,4 +1,4 @@
-﻿"use server";
+"use server";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -144,6 +144,16 @@ export async function saveProfileAction(formData: FormData) {
 
   if (!parsed.success) {
     redirect("/dashboard/profile?error=Invalid+profile+input");
+  }
+
+  const RESERVED_USERNAMES = [
+    "login", "register", "signup", "auth", "logout", 
+    "admin", "dashboard", "settings", "api", "pricing", 
+    "help", "support", "contact", "about", "terms", "privacy", "blog"
+  ];
+
+  if (RESERVED_USERNAMES.includes(parsed.data.username.toLowerCase())) {
+    redirect("/dashboard/profile?error=This+username+is+not+available");
   }
 
   const { error } = await supabase
