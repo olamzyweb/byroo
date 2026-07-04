@@ -403,11 +403,8 @@ export default function Home() {
           <div>
             <h4 className="font-semibold text-sm text-slate-900 mb-4 tracking-tight">Product</h4>
             <ul className="space-y-3 text-sm text-slate-500">
-              <li><a href="#" className="hover:text-indigo-600 transition-colors">Features</a></li>
-              <li><a href="/pricing" className="hover:text-indigo-600 transition-colors">Pricing</a></li>
-              <li><Link href="/features" className="hover:text-indigo-600 transition-colors">Features</Link></li>
               <li><Link href="/pricing" className="hover:text-indigo-600 transition-colors">Pricing</Link></li>
-              <li><Link href="/templates" className="hover:text-indigo-600 transition-colors">Templates</Link></li>
+              <li><Link href="#" className="hover:text-indigo-600 transition-colors">Templates</Link></li>
               <li><Link href="/changelog" className="hover:text-indigo-600 transition-colors">Changelog</Link></li>
             </ul>
           </div>
@@ -423,10 +420,9 @@ export default function Home() {
           <div>
             <h4 className="font-semibold text-sm text-slate-900 mb-4 tracking-tight">Company</h4>
             <ul className="space-y-3 text-sm text-slate-500">
-              <li><a href="#" className="hover:text-indigo-600 transition-colors">About us</a></li>
-              <li><a href="#" className="hover:text-indigo-600 transition-colors">Contact</a></li>
-              <li><a href="#" className="hover:text-indigo-600 transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-indigo-600 transition-colors">Terms of Service</a></li>
+              <li><Link href="/contact" className="hover:text-indigo-600 transition-colors">Contact</Link></li>
+              <li><Link href="/privacy" className="hover:text-indigo-600 transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="hover:text-indigo-600 transition-colors">Terms of Service</Link></li>
             </ul>
           </div>
         </div>
