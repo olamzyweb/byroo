@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   const token = url.searchParams.get("token") || (authHeader?.startsWith("Bearer ") ? authHeader.substring(7) : null);
 
   // In production, require a cron secret. Local dev allows bypassing if not set.
-  if (env.isProduction && token !== env.socialSyncCronSecret) {
+  if (process.env.NODE_ENV === "production" && token !== env.socialSyncCronSecret) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
