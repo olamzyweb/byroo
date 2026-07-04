@@ -146,7 +146,7 @@ export function ParticleSwarm({ enabled = true }: { enabled?: boolean }) {
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none fixed inset-0 h-full w-full opacity-50"
+      className="pointer-events-none fixed inset-0 h-full w-full opacity-50 blur-[1px]"
       style={{ zIndex: 0 }}
     />
   );
