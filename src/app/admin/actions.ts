@@ -37,6 +37,26 @@ export async function setUserPlanAction(formData: FormData) {
 
   const admin = createAdminClient();
   await admin.from("profiles").update({ plan }).eq("id", targetUserId);
+
+  if (plan === "pro") {
+    // Grant 30-day manual VIP access (Free Trial)
+    const date = new Date();
+    date.setDate(date.getDate() + 30);
+    await admin.from("subscriptions").insert({
+      user_id: targetUserId,
+      provider: "manual",
+      status: "active",
+      plan_key: "pro_monthly",
+      current_period_end: date.toISOString(),
+    });
+  } else {
+    // Revoke any existing manual VIP access
+    await admin.from("subscriptions")
+      .update({ status: "inactive" })
+      .eq("user_id", targetUserId)
+      .eq("provider", "manual");
+  }
+
   await writeAuditLog(adminUser.id, "set_plan", targetUserId, { plan });
 
   revalidatePath("/admin");
