@@ -168,7 +168,7 @@ async function upsertPaystackSubscription(params: {
       status: isActive ? "active" : params.status || "inactive",
       plan_key: "pro_monthly",
       price_id: params.planCode ?? null,
-      current_period_end: params.nextPaymentDate ?? null,
+      ...(params.nextPaymentDate ? { current_period_end: params.nextPaymentDate } : {})
     }).eq("id", existing.id);
   } else {
     let pendingQuery = admin.from("subscriptions").select("id").eq("user_id", params.userId).eq("provider", "paystack");
@@ -184,8 +184,10 @@ async function upsertPaystackSubscription(params: {
         status: isActive ? "active" : params.status || "inactive",
         plan_key: "pro_monthly",
         price_id: params.planCode ?? null,
-        current_period_end: params.nextPaymentDate ?? null,
       };
+      if (params.nextPaymentDate) {
+        updatePayload.current_period_end = params.nextPaymentDate;
+      }
       if (params.subscriptionCode) {
         updatePayload.provider_subscription_id = params.subscriptionCode;
       }
@@ -463,10 +465,10 @@ export class PaystackBillingProvider implements BillingProvider {
     const planCode = typeof plan.plan_code === "string" ? plan.plan_code : env.paystackProPlanCode || null;
     let nextPayment = parseDate(data.next_payment_date);
 
-    // 32-Day Shield: If Paystack processed a charge but didn't provide an expiration date
+    // 30-Day Shield: If Paystack processed a charge but didn't provide an expiration date
     if (!nextPayment && event === "charge.success") {
       const date = new Date();
-      date.setDate(date.getDate() + 32); // 30 days + 2 day grace period
+      date.setDate(date.getDate() + 30); // 30 days exact (Sweep will provide the grace period)
       nextPayment = date.toISOString();
     }
 

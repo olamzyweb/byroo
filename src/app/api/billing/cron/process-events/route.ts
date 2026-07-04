@@ -58,7 +58,9 @@ export async function GET(request: Request) {
   // 2. Nightly Expiration Sweep
   let sweepCount = 0;
   try {
-    const now = new Date().toISOString();
+    const now = new Date();
+    // 48-Hour Grace Period Cutoff
+    const graceCutoff = new Date(now.getTime() - 48 * 60 * 60 * 1000).toISOString();
     
     // Find all 'pro' users
     const { data: proProfiles } = await admin
@@ -69,12 +71,12 @@ export async function GET(request: Request) {
     const proUserIds = (proProfiles ?? []).map(p => p.id);
 
     if (proUserIds.length > 0) {
-      // A user is valid if they have AT LEAST ONE subscription that is active OR hasn't expired yet
+      // A user is valid if they have AT LEAST ONE subscription that is active OR hasn't expired past the grace period
       const { data: validSubs } = await admin
         .from("subscriptions")
         .select("user_id")
         .in("user_id", proUserIds)
-        .or(`status.eq.active,current_period_end.gt.${now}`);
+        .or(`status.eq.active,current_period_end.gt.${graceCutoff}`);
 
       const validUserIds = new Set((validSubs ?? []).map(s => s.user_id));
 
