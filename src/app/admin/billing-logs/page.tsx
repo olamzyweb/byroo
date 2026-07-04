@@ -37,9 +37,9 @@ export default async function AdminBillingLogsPage({
           </thead>
           <tbody>
             {(events ?? []).map((row) => {
-              let tone: "neutral" | "success" | "warning" | "error" = "neutral";
+              let tone: "neutral" | "success" | "warning" | "brand" = "neutral";
               if (row.status === "processed") tone = "success";
-              if (row.status === "failed") tone = "error";
+              if (row.status === "failed") tone = "warning";
               if (row.status === "processing") tone = "warning";
 
               return (
