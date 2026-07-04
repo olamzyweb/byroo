@@ -28,6 +28,8 @@ export default async function BillingPage({
     }
   }
 
+  const provider = getBillingProvider();
+
   const [{ data: profile }, { data: subscription }] = await Promise.all([
     supabase.from("profiles").select("plan").eq("id", user.id).single(),
     supabase
@@ -39,9 +41,23 @@ export default async function BillingPage({
       .maybeSingle(),
   ]);
 
+  let transactions: any[] = [];
+  if (subscription?.provider_customer_id && provider.getTransactionHistory) {
+    transactions = await provider.getTransactionHistory(subscription.provider_customer_id);
+  }
+
   const free = PLAN_CONFIG.free;
   const pro = PLAN_CONFIG.pro;
   const prettyLimit = (value: number) => (Number.isFinite(value) ? String(value) : "Unlimited");
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -65,8 +81,47 @@ export default async function BillingPage({
           </form>
         )}
 
-        {subscription?.status ? <p className="text-sm text-[var(--text-soft)]">Subscription: {subscription.status}</p> : null}
+        {subscription?.status ? (
+          <div className="flex flex-col gap-1 text-sm text-[var(--text-soft)]">
+            <p>Subscription: <span className="capitalize text-[var(--text-strong)]">{subscription.status}</span></p>
+            {subscription.current_period_end && (
+              <p>Renews/Expires: <span className="text-[var(--text-strong)]">{formatDate(subscription.current_period_end)}</span></p>
+            )}
+          </div>
+        ) : null}
       </Card>
+
+      {transactions.length > 0 && (
+        <Card className="space-y-4">
+          <h3 className="text-sm font-semibold text-[var(--text-strong)]">Transaction History</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-[var(--text-soft)]">
+              <thead>
+                <tr className="border-b border-[var(--border)]">
+                  <th className="pb-2 font-medium">Date</th>
+                  <th className="pb-2 font-medium">Amount</th>
+                  <th className="pb-2 font-medium">Status</th>
+                  <th className="pb-2 font-medium">Reference</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border)]">
+                {transactions.map((t) => (
+                  <tr key={t.id} className="group">
+                    <td className="py-3 pr-4 whitespace-nowrap">{formatDate(t.date)}</td>
+                    <td className="py-3 pr-4">₦{t.amount.toLocaleString()}</td>
+                    <td className="py-3 pr-4">
+                      <Badge tone={t.status === "success" ? "success" : "neutral"}>
+                        {t.status}
+                      </Badge>
+                    </td>
+                    <td className="py-3 whitespace-nowrap font-mono text-xs">{t.reference}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="space-y-3">

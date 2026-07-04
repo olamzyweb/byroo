@@ -100,7 +100,7 @@ export default async function DashboardPage() {
             </h3>
             {profile?.plan === "pro" && !profile?.badge_revoked ? (
               <p className="mt-1 text-xs text-[var(--text-soft)]">
-                Your profile is verified. The blue checkmark is currently visible to your buyers, building trust and helping you close more sales.
+                Your profile is verified. The checkmark is currently visible to your buyers, building trust and helping you close more sales.
               </p>
             ) : profile?.badge_revoked ? (
               <p className="mt-1 text-xs text-red-500">
@@ -108,7 +108,7 @@ export default async function DashboardPage() {
               </p>
             ) : (
               <p className="mt-1 text-xs text-[var(--text-soft)]">
-                Upgrade to Pro to instantly unlock your blue Verified Vendor badge. Show buyers you are a trusted, premium business.
+                Upgrade to Pro to instantly unlock your Verified Vendor badge. Show buyers you are a trusted, premium business.
               </p>
             )}
           </div>

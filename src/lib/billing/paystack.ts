@@ -591,4 +591,22 @@ export class PaystackBillingProvider implements BillingProvider {
       throw new Error("Failed to queue webhook event");
     }
   }
+
+  async getTransactionHistory(customerCode: string) {
+    if (!customerCode) return [];
+    try {
+      const response = await paystackRequest<{ data: any[] }>(`/transaction?customer=${encodeURIComponent(customerCode)}`);
+      const rows = response.data || [];
+      return rows.map((row) => ({
+        id: String(row.id),
+        amount: Number(row.amount) / 100,
+        status: String(row.status),
+        date: String(row.paid_at || row.created_at),
+        reference: String(row.reference),
+      }));
+    } catch (err) {
+      console.error("[billing] Failed to fetch transaction history", err);
+      return [];
+    }
+  }
 }

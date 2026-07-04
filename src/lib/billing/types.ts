@@ -17,5 +17,12 @@ export interface BillingProvider {
   verifyCheckoutReference?(reference: string): Promise<void>;
   syncSubscriptionForUser?(input: { userId: string; email?: string; customerCode?: string | null }): Promise<void>;
   processBillingEvent?(eventId: string, payload: any): Promise<void>;
+  getTransactionHistory?(customerId: string): Promise<{
+    id: string;
+    amount: number;
+    status: string;
+    date: string;
+    reference: string;
+  }[]>;
   handleWebhook(rawBody: string, headers: Headers): Promise<void>;
 }
