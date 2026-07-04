@@ -595,11 +595,23 @@ export class PaystackBillingProvider implements BillingProvider {
   async getTransactionHistory(customerCode: string) {
     if (!customerCode) return [];
     try {
-      const url = `/transaction?customer=${encodeURIComponent(customerCode)}`;
+      // 1. Paystack's transaction endpoint requires the internal integer ID, not the CUS_ code.
+      // So we fetch the customer profile first to get the integer ID.
+      const customerRes = await paystackRequest<{ data: { id: number } }>(`/customer/${encodeURIComponent(customerCode)}`);
+      const customerId = customerRes.data?.id;
+
+      if (!customerId) {
+        console.error(`[billing] Could not resolve integer ID for customer ${customerCode}`);
+        return [];
+      }
+
+      // 2. Fetch the transactions using the integer ID.
+      const url = `/transaction?customer=${customerId}`;
       console.log(`[billing] Fetching transactions from: ${url}`);
       const response = await paystackRequest<{ data: any[] }>(url);
       const rows = response.data || [];
-      console.log(`[billing] Found ${rows.length} transactions for customer ${customerCode}`);
+      console.log(`[billing] Found ${rows.length} transactions for customer ID ${customerId}`);
+      
       return rows.map((row) => ({
         id: String(row.id),
         amount: Number(row.amount) / 100,
