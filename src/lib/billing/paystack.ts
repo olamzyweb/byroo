@@ -595,8 +595,11 @@ export class PaystackBillingProvider implements BillingProvider {
   async getTransactionHistory(customerCode: string) {
     if (!customerCode) return [];
     try {
-      const response = await paystackRequest<{ data: any[] }>(`/transaction?customer=${encodeURIComponent(customerCode)}`);
+      const url = `/transaction?customer=${encodeURIComponent(customerCode)}`;
+      console.log(`[billing] Fetching transactions from: ${url}`);
+      const response = await paystackRequest<{ data: any[] }>(url);
       const rows = response.data || [];
+      console.log(`[billing] Found ${rows.length} transactions for customer ${customerCode}`);
       return rows.map((row) => ({
         id: String(row.id),
         amount: Number(row.amount) / 100,

@@ -91,9 +91,11 @@ export default async function BillingPage({
         ) : null}
       </Card>
 
-      {transactions.length > 0 && (
-        <Card className="space-y-4">
-          <h3 className="text-sm font-semibold text-[var(--text-strong)]">Transaction History</h3>
+      <Card className="space-y-4">
+        <h3 className="text-sm font-semibold text-[var(--text-strong)]">Transaction History</h3>
+        {transactions.length === 0 ? (
+          <p className="text-sm text-[var(--text-soft)] italic">No recent transactions found.</p>
+        ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-[var(--text-soft)]">
               <thead>
@@ -120,8 +122,8 @@ export default async function BillingPage({
               </tbody>
             </table>
           </div>
-        </Card>
-      )}
+        )}
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="space-y-3">
