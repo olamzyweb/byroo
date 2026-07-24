@@ -78,7 +78,7 @@ export default async function CampaignBuilderPage() {
                     </td>
                   </tr>
                 ) : (
-                  campaigns.map((camp) => {
+                  campaigns.map((camp: any) => {
                     const filter = (camp.audienceFilter || {}) as { plan?: string; onboarded?: boolean };
                     let audienceLabel = "All Users";
                     if (filter.plan === "pro") audienceLabel = "Pro Plan Only";

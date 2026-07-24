@@ -138,7 +138,7 @@ export default async function AdminEmailDashboard() {
                     </td>
                   </tr>
                 ) : (
-                  recentLogs.map((log) => (
+                  recentLogs.map((log: any) => (
                     <tr key={log.id} className="hover:bg-gray-50/50">
                       <td className="px-6 py-4">
                         <div className="font-semibold text-gray-900 truncate max-w-[180px]" title={log.recipientEmail}>
