@@ -10,6 +10,7 @@ const items = [
   { href: "/admin/subscriptions", label: "Subscriptions" },
   { href: "/admin/billing-logs", label: "Billing Logs" },
   { href: "/admin/analytics", label: "Analytics" },
+  { href: "/admin/email", label: "Email Center" },
   { href: "/admin/system", label: "System" },
 ];
 

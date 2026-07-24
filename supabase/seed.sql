@@ -13,5 +13,5 @@ set name = excluded.name,
 -- Optional demo rows:
 -- replace USER_UUID and username before running.
 -- insert into public.profiles (id, email, username, display_name, bio, plan, onboarded)
--- values ('USER_UUID', 'demo@byroo.space', 'democreator', 'Demo Creator', 'Creative studio owner', 'free', true)
+-- values ('USER_UUID', 'demo@byroo.digital', 'democreator', 'Demo Creator', 'Creative studio owner', 'free', true)
 -- on conflict (id) do nothing;

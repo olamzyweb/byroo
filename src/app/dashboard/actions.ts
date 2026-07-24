@@ -80,6 +80,20 @@ async function requireAuthedContext() {
       plan: "free",
     });
 
+    try {
+      const { inngest } = await import("@/lib/email/queue");
+      await inngest.send({
+        name: "user/signup",
+        data: {
+          userId: user.id,
+          email: user.email ?? "",
+          name: user.user_metadata?.full_name ?? "New Byroo User",
+        },
+      });
+    } catch (e) {
+      console.warn("Failed to trigger onboarding workflow:", e);
+    }
+
     const { data: newProfile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
     return {
       supabase,
@@ -177,6 +191,18 @@ export async function saveProfileAction(formData: FormData) {
       redirect("/dashboard/profile?error=This+username+has+already+been+taken");
     }
     redirect(`/dashboard/profile?error=${encodeURIComponent(error.message)}`);
+  }
+
+  // Trigger profile completed email if onboarding for the first time
+  if (!(profile as any).onboarded) {
+    try {
+      const { enqueueEmail } = await import("@/lib/email/queue");
+      await enqueueEmail(user.email ?? "", "profile-completed", {
+        businessName: parsed.data.displayName,
+      }, { userId: user.id });
+    } catch (e) {
+      console.warn("Failed to trigger profile completed email:", e);
+    }
   }
 
   await refreshUserPages(parsed.data.username || profile.username);

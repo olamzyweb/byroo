@@ -1,0 +1,211 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Profile {
+  id                  String                       @id @db.Uuid
+  email               String                       @unique
+  username            String?                      @unique
+  displayName         String                       @default("New Byroo User") @map("display_name")
+  bio                 String?
+  avatarUrl           String?                      @map("avatar_url")
+  headerImageUrl      String?                      @map("header_image_url")
+  whatsappNumber      String?                      @map("whatsapp_number")
+  whatsappPrefill     String?                      @map("whatsapp_prefill")
+  businessLocation    String?                      @map("business_location")
+  googleMapsUrl       String?                      @map("google_maps_url")
+  deliveryInfo        String?                      @map("delivery_info")
+  openingHours        String?                      @map("opening_hours")
+  nationwideDelivery  Boolean                      @default(false) @map("nationwide_delivery")
+  inStorePickup       Boolean                      @default(false) @map("in_store_pickup")
+  instagramUrl        String?                      @map("instagram_url")
+  tiktokUrl           String?                      @map("tiktok_url")
+  facebookUrl         String?                      @map("facebook_url")
+  trustedBadgeText    String?                      @map("trusted_badge_text")
+  themeKey            String                       @default("byroo-light") @map("theme_key")
+  brandingHidden      Boolean                      @default(false) @map("branding_hidden")
+  plan                String                       @default("free")
+  onboarded           Boolean                      @default(false)
+  createdAt           DateTime                     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime                     @default(now()) @map("updated_at") @db.Timestamptz
+
+  subscriptions                Subscription[]
+  emailPreferences             EmailPreference[]
+  userNotificationPreferences  UserNotificationPreference[]
+  emailLogs                    EmailLog[]
+  scheduledEmails              ScheduledEmail[]
+  campaignRecipients           CampaignRecipient[]
+
+  @@map("profiles")
+}
+
+model Subscription {
+  id                        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId                    String    @map("user_id") @db.Uuid
+  provider                  String    @default("stripe")
+  providerCustomerId        String?   @map("provider_customer_id")
+  providerSubscriptionId    String?   @map("provider_subscription_id")
+  providerSubscriptionToken String?   @map("provider_subscription_token")
+  providerReference         String?   @map("provider_reference")
+  status                    String    @default("inactive")
+  planKey                   String    @default("pro_monthly") @map("plan_key")
+  priceId                   String?   @map("price_id")
+  currentPeriodEnd          DateTime? @map("current_period_end") @db.Timestamptz
+  createdAt                 DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt                 DateTime  @default(now()) @map("updated_at") @db.Timestamptz
+
+  profile                   Profile   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerSubscriptionId])
+  @@map("subscriptions")
+}
+
+model EmailPreference {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId              String   @unique @map("user_id") @db.Uuid
+  marketing           Boolean  @default(true)
+  weeklyReports       Boolean  @default(true) @map("weekly_reports")
+  monthlyReports      Boolean  @default(true) @map("monthly_reports")
+  productAnnouncements Boolean @default(true) @map("product_announcements")
+  securityNotifications Boolean @default(true) @map("security_notifications")
+  billingNotifications Boolean  @default(true) @map("billing_notifications")
+  systemNotifications Boolean  @default(true) @map("system_notifications")
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  profile             Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("email_preferences")
+}
+
+model UserNotificationPreference {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId              String   @unique @map("user_id") @db.Uuid
+  contactInquiry      Boolean  @default(true) @map("contact_inquiry")
+  newReview           Boolean  @default(true) @map("new_review")
+  newFavorite         Boolean  @default(true) @map("new_favorite")
+  businessApproval    Boolean  @default(true) @map("business_approval")
+  subscriptionChange  Boolean  @default(true) @map("subscription_change")
+  trialEnd            Boolean  @default(true) @map("trial_end")
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  profile             Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_notification_preferences")
+}
+
+model EmailLog {
+  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String?          @map("user_id") @db.Uuid
+  recipientEmail  String           @map("recipient_email")
+  subject         String
+  templateName    String           @map("template_name")
+  variables       Json             @map("variables")
+  status          String           @default("queued")
+  resendMessageId String?          @unique @map("resend_message_id")
+  errorDetails    String?          @map("error_details")
+  openedAt        DateTime?        @map("opened_at") @db.Timestamptz
+  clickedAt       DateTime?        @map("clicked_at") @db.Timestamptz
+  bouncedAt       DateTime?        @map("bounced_at") @db.Timestamptz
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime         @default(now()) @map("updated_at") @db.Timestamptz
+
+  profile         Profile?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  analytics       EmailAnalytics[]
+
+  @@index([recipientEmail])
+  @@index([templateName])
+  @@index([status])
+  @@map("email_logs")
+}
+
+model EmailTemplate {
+  id          String   @id
+  name        String
+  subject     String
+  htmlContent String?  @map("html_content")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@map("email_templates")
+}
+
+model ScheduledEmail {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  recipientEmail String   @map("recipient_email")
+  templateName   String   @map("template_name")
+  variables      Json
+  scheduledFor   DateTime @map("scheduled_for") @db.Timestamptz
+  status         String   @default("pending") // pending, sent, failed, cancelled
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  profile        Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status, scheduledFor])
+  @@map("scheduled_emails")
+}
+
+model EmailCampaign {
+  id             String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title          String
+  subject        String
+  templateName   String              @map("template_name")
+  customBody     String?             @map("custom_body")
+  audienceFilter Json                @map("audience_filter")
+  scheduledAt    DateTime?           @map("scheduled_at") @db.Timestamptz
+  status         String              @default("draft") // draft, scheduled, sending, completed, failed
+  sentCount      Int                 @default(0) @map("sent_count")
+  deliveredCount Int                 @default(0) @map("delivered_count")
+  openedCount    Int                 @default(0) @map("opened_count")
+  clickedCount   Int                 @default(0) @map("clicked_count")
+  bouncedCount   Int                 @default(0) @map("bounced_count")
+  createdAt      DateTime            @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime            @default(now()) @map("updated_at") @db.Timestamptz
+
+  recipients     CampaignRecipient[]
+  analytics      EmailAnalytics[]
+
+  @@map("email_campaigns")
+}
+
+model CampaignRecipient {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  campaignId      String        @map("campaign_id") @db.Uuid
+  recipientEmail  String        @map("recipient_email")
+  userId          String?       @map("user_id") @db.Uuid
+  status          String        @default("pending") // pending, sent, failed
+  resendMessageId String?       @map("resend_message_id")
+  error           String?
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz
+
+  campaign        EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  profile         Profile?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([campaignId, recipientEmail])
+  @@map("campaign_recipients")
+}
+
+model EmailAnalytics {
+  id          String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  emailLogId  String?        @map("email_log_id") @db.Uuid
+  campaignId  String?        @map("campaign_id") @db.Uuid
+  eventType   String         @map("event_type") // sent, delivered, open, click, bounce, complaint, unsubscribe
+  urlClicked  String?        @map("url_clicked")
+  ipAddress   String?        @map("ip_address")
+  userAgent   String?        @map("user_agent")
+  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz
+
+  emailLog    EmailLog?      @relation(fields: [emailLogId], references: [id], onDelete: SetNull)
+  campaign    EmailCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("email_analytics")
+}

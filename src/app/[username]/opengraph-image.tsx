@@ -47,7 +47,7 @@ export default async function OpenGraphImage({ params }: { params: Promise<{ use
             <div style={{ fontSize: 64, fontWeight: 700, lineHeight: 1.05 }}>{displayName}</div>
             <div style={{ fontSize: 28, color: "#475569", lineHeight: 1.25, maxWidth: 760 }}>{bio.slice(0, 140)}</div>
           </div>
-          <div style={{ fontSize: 24, color: "#64748b" }}>byroo.space/{username}</div>
+          <div style={{ fontSize: 24, color: "#64748b" }}>byroo.digital/{username}</div>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "24%" }}>

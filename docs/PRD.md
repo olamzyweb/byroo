@@ -1,4 +1,4 @@
-﻿# Byroo PRD
+# Byroo PRD
 
 ## Product Positioning
 Byroo is a WhatsApp-first storefront and digital business page for Nigerian small businesses and vendors.
@@ -55,7 +55,7 @@ Pro:
 ## Key Flows
 1. User signs up and configures profile + WhatsApp number.
 2. User adds catalog items/services/reviews.
-3. Customer lands on `byroo.space/username`.
+3. Customer lands on `byroo.digital/username`.
 4. Customer taps item/service CTA -> WhatsApp opens with prefilled message.
 
 ## Social Proof Flow

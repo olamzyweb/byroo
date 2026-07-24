@@ -31,6 +31,20 @@ export default async function DashboardLayout({ children }: { children: React.Re
       display_name: user.user_metadata?.full_name ?? "New Byroo User",
       plan: "free",
     });
+
+    try {
+      const { inngest } = await import("@/lib/email/queue");
+      await inngest.send({
+        name: "user/signup",
+        data: {
+          userId: user.id,
+          email: user.email ?? "",
+          name: user.user_metadata?.full_name ?? "New Byroo User",
+        },
+      });
+    } catch (e) {
+      console.warn("Failed to trigger onboarding workflow:", e);
+    }
   }
 
   const publicPath = profile?.username ? `/${profile.username}` : "#";

@@ -38,6 +38,39 @@ async function upsertSubscription(params: {
     },
     { onConflict: "provider,provider_subscription_id" },
   );
+
+  // Trigger billing email updates in the background
+  try {
+    const { data: profileObj } = await admin
+      .from("profiles")
+      .select("email, display_name")
+      .eq("id", params.userId)
+      .single();
+
+    if (profileObj?.email) {
+      const { enqueueEmail } = await import("@/lib/email/queue");
+      if (params.status === "active") {
+        await enqueueEmail(profileObj.email, "subscription-started", {
+          name: profileObj.display_name || "Creator",
+          planName: "Pro Monthly",
+          priceAmount: "₦10,000 / month",
+          billingPeriod: "Monthly",
+          renewalDate: params.currentPeriodEnd
+            ? new Date(params.currentPeriodEnd * 1000).toLocaleDateString()
+            : new Date().toLocaleDateString(),
+        }, { userId: params.userId });
+      } else if (params.status === "past_due" || params.status === "unpaid") {
+        await enqueueEmail(profileObj.email, "subscription-failed", {
+          name: profileObj.display_name || "Creator",
+          planName: "Pro Monthly",
+          priceAmount: "₦10,000",
+          retryDate: "in 2 days",
+        }, { userId: params.userId });
+      }
+    }
+  } catch (e) {
+    console.warn("⚠️ Failed to trigger Stripe billing notification email:", e);
+  }
 }
 
 export class StripeBillingProvider implements BillingProvider {
