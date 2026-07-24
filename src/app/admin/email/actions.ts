@@ -175,7 +175,7 @@ export async function launchCampaign(campaignId: string) {
 
     const recipients = await prisma.profile.findMany({
       where: queryConditions,
-      select: { id: true, email: true, displayName: true },
+      select: { id: true, email: true, displayName: true, username: true },
     });
 
     // 3. Queue emails in background
@@ -191,6 +191,8 @@ export async function launchCampaign(campaignId: string) {
         },
       });
 
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
       // Enqueue custom email
       // We pass campaign variables like custom body text to the templates
       const dispatchResult = await enqueueEmail(
@@ -198,6 +200,8 @@ export async function launchCampaign(campaignId: string) {
         campaign.templateName,
         {
           name: user.displayName,
+          businessName: user.displayName,
+          businessUrl: user.username ? `${baseUrl}/${user.username}` : baseUrl,
           subject: campaign.subject,
           customBody: campaign.customBody,
           campaignId: campaignId,
