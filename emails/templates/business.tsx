@@ -175,20 +175,20 @@ export const BusinessProfileCompleted: React.FC<BusinessProfileCompletedProps> =
   unsubscribeToken,
 }) => (
   <BrandedLayout
-    previewText="Your Byroo profile is 100% complete!"
+    previewText="Great start! Your Byroo profile is created"
     unsubscribeToken={unsubscribeToken}
   >
-    <EmailH1>Your Profile is Complete! 🌟</EmailH1>
+    <EmailH1>Your Byroo profile is live! 🚀</EmailH1>
     <EmailBody>
-      Awesome job! Your profile, <strong>{businessName}</strong>, is now fully completed. You've added your business info, avatar, location, catalog items, and WhatsApp links.
+      Great job! Your profile, <strong>{businessName}</strong>, has been successfully created. You have claimed your unique username link and set up your base profile info.
     </EmailBody>
     <EmailBody>
-      Profiles that are 100% complete receive up to **4x more inquiries** than incomplete ones. You are now positioned perfectly to attract customers.
+      To start receiving client bookings and orders, let's complete your launch setup: add a WhatsApp contact number, upload an avatar, and list your first service or catalog item.
     </EmailBody>
     <EmailCTA
-      title="Manage Your Space"
-      description="Keep your catalog fresh by updating it regularly."
-      buttonText="Go to Dashboard"
+      title="Complete Your Setup"
+      description="Add products and configure WhatsApp checkout in your dashboard."
+      buttonText="Finish Setup"
       href={dashboardUrl}
     />
   </BrandedLayout>
