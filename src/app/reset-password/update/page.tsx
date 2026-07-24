@@ -26,6 +26,25 @@ async function updateAction(formData: FormData) {
     redirect(`/reset-password/update?error=${encodeURIComponent(error.message)}`);
   }
 
+  // Trigger security notification email
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    try {
+      const { enqueueEmail } = await import("@/lib/email/queue");
+      await enqueueEmail(
+        user.email ?? "",
+        "password-changed",
+        {
+          name: user.user_metadata?.full_name || "Byroo User",
+          changeTime: new Date().toUTCString(),
+        },
+        { userId: user.id }
+      );
+    } catch (e) {
+      console.warn("Failed to trigger password changed email:", e);
+    }
+  }
+
   redirect("/login?message=Password updated successfully. Please log in.");
 }
 
