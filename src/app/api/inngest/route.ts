@@ -182,7 +182,7 @@ const weeklyDigestCron = inngest.createFunction(
     });
 
     // Queue weekly digest triggers
-    const events = users.map((user) => ({
+    const events = users.map((user: any) => ({
       name: "digest/weekly",
       data: {
         userId: user.id,
@@ -258,7 +258,7 @@ const monthlyReportCron = inngest.createFunction(
       });
     });
 
-    const events = users.map((user) => ({
+    const events = users.map((user: any) => ({
       name: "digest/monthly",
       data: {
         userId: user.id,
