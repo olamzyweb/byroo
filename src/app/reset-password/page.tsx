@@ -13,7 +13,7 @@ async function resetAction(formData: FormData) {
   const supabase = await createClient();
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${env.appUrl}/login`,
+    redirectTo: `${env.appUrl}/api/auth/callback?next=/reset-password/update`,
   });
 
   if (error) {
