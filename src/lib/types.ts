@@ -43,6 +43,7 @@ export interface Profile {
   plan: Plan;
   onboarded: boolean;
   badge_revoked: boolean;
+  tour_completed: boolean;
 }
 
 export interface LinkItem {

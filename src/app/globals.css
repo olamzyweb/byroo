@@ -65,3 +65,94 @@ h6 {
     transform: translateX(-50%);
   }
 }
+
+/* Modern Driver.js Onboarding Tour Popovers Styling */
+.byroo-tour-popover.driver-popover {
+  background-color: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px !important;
+  padding: 20px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03) !important;
+  max-width: 320px !important;
+  font-family: var(--font-sans) !important;
+}
+
+.byroo-tour-popover .driver-popover-title {
+  font-family: var(--font-heading) !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: var(--text-strong) !important;
+  margin-bottom: 6px !important;
+  letter-spacing: -0.01em !important;
+}
+
+.byroo-tour-popover .driver-popover-description {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: var(--text-soft) !important;
+  margin-bottom: 16px !important;
+}
+
+.byroo-tour-popover .driver-popover-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-top: 12px !important;
+  gap: 8px !important;
+}
+
+.byroo-tour-popover .driver-popover-progress-text {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: var(--text-soft) !important;
+  opacity: 0.8 !important;
+}
+
+/* Modern buttons styling */
+.byroo-tour-popover .driver-popover-next-btn,
+.byroo-tour-popover .driver-popover-prev-btn,
+.byroo-tour-popover .driver-popover-close-btn {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+  transition: all 0.15s ease !important;
+}
+
+.byroo-tour-popover .driver-popover-next-btn {
+  background-color: var(--brand-600) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--brand-600) !important;
+}
+
+.byroo-tour-popover .driver-popover-next-btn:hover {
+  background-color: var(--brand-700) !important;
+  border-color: var(--brand-700) !important;
+}
+
+.byroo-tour-popover .driver-popover-prev-btn {
+  background-color: var(--surface-muted) !important;
+  color: var(--text-strong) !important;
+  border: 1px solid var(--border-subtle) !important;
+}
+
+.byroo-tour-popover .driver-popover-prev-btn:hover {
+  background-color: var(--border-subtle) !important;
+}
+
+.byroo-tour-popover .driver-popover-close-btn {
+  color: var(--text-soft) !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.byroo-tour-popover .driver-popover-close-btn:hover {
+  color: var(--text-strong) !important;
+}
+
+.byroo-tour-popover .driver-popover-arrow {
+  border-color: var(--surface) !important;
+}
+

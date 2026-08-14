@@ -826,3 +826,13 @@ export async function disconnectSocialProfileAction(formData: FormData) {
   await refreshUserPages(profile.username);
   redirect("/dashboard/socials?message=Social+profile+disconnected");
 }
+
+export async function markTourCompletedAction() {
+  const { supabase, user } = await requireAuthedContext();
+  await supabase
+    .from("profiles")
+    .update({ tour_completed: true })
+    .eq("id", user.id);
+
+  revalidatePath("/dashboard");
+}

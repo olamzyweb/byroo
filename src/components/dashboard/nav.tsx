@@ -20,6 +20,14 @@ const items = [
   { href: "/dashboard/billing", label: "Billing" },
 ];
 
+const navIdMap: Record<string, string> = {
+  "/dashboard/profile": "nav-profile",
+  "/dashboard/whatsapp": "nav-whatsapp",
+  "/dashboard/links": "nav-links",
+  "/dashboard/catalog": "nav-catalog",
+  "/dashboard/appearance": "nav-appearance",
+};
+
 export function DashboardNav() {
   const pathname = usePathname();
 
@@ -31,6 +39,7 @@ export function DashboardNav() {
           <Link
             key={item.href}
             href={item.href}
+            id={navIdMap[item.href]}
             className={cn(
               "rounded-xl px-3 py-2 text-sm transition-colors",
               active

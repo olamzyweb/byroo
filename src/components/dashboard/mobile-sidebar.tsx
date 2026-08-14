@@ -33,6 +33,20 @@ export function MobileSidebarWrapper({
     };
   }, [isOpen]);
 
+  // Listen to programmatically open/close the mobile sidebar during the onboarding tour
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    const handleClose = () => setIsOpen(false);
+
+    window.addEventListener("byroo:open-sidebar", handleOpen);
+    window.addEventListener("byroo:close-sidebar", handleClose);
+
+    return () => {
+      window.removeEventListener("byroo:open-sidebar", handleOpen);
+      window.removeEventListener("byroo:close-sidebar", handleClose);
+    };
+  }, []);
+
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col md:grid md:grid-cols-[255px_1fr] md:gap-5 md:px-8 md:py-8">
       {/* Mobile Top Header (Visible only on mobile) */}

@@ -2,6 +2,7 @@ import { ButtonLink, Card, EmptyState, SectionHeader, StatCard } from "@/compone
 import { BadgeCheck, Lock } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
+import { OnboardingTour, RestartTourButton } from "@/components/dashboard/OnboardingTour";
 
 export default async function DashboardPage() {
   const user = await requireUser();
@@ -22,7 +23,7 @@ export default async function DashboardPage() {
     supabase.from("social_profiles").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("sync_status", "success"),
     supabase
       .from("profiles")
-      .select("display_name, username, plan, onboarded, bio, avatar_url, whatsapp_number, header_image_url, badge_revoked")
+      .select("display_name, username, plan, onboarded, bio, avatar_url, whatsapp_number, header_image_url, badge_revoked, tour_completed")
       .eq("id", user.id)
       .single(),
   ]);
@@ -87,95 +88,104 @@ export default async function DashboardPage() {
         <StatCard label="Catalog Items" value={catalogCount ?? 0} />
       </div>
 
-      <Card>
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 className="text-sm font-semibold text-[var(--text-strong)] flex items-center gap-2">
-              Verified Vendor Badge
+      <div id="step-verification-card">
+        <Card>
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="text-sm font-semibold text-[var(--text-strong)] flex items-center gap-2">
+                Verified Vendor Badge
+                {profile?.plan === "pro" && !profile?.badge_revoked ? (
+                  <BadgeCheck className="h-5 w-5 text-white fill-blue-500" />
+                ) : (
+                  <Lock className="h-4 w-4 text-[var(--text-soft)]" />
+                )}
+              </h3>
               {profile?.plan === "pro" && !profile?.badge_revoked ? (
-                <BadgeCheck className="h-5 w-5 text-white fill-blue-500" />
+                <p className="mt-1 text-xs text-[var(--text-soft)]">
+                  Your profile is verified. The checkmark is currently visible to your buyers, building trust and helping you close more sales.
+                </p>
+              ) : profile?.badge_revoked ? (
+                <p className="mt-1 text-xs text-red-500">
+                  Your verified badge has been revoked by Byroo administration. Please contact support.
+                </p>
               ) : (
-                <Lock className="h-4 w-4 text-[var(--text-soft)]" />
+                <p className="mt-1 text-xs text-[var(--text-soft)]">
+                  Upgrade to Pro to instantly unlock your Verified Vendor badge. Show buyers you are a trusted, premium business.
+                </p>
               )}
-            </h3>
-            {profile?.plan === "pro" && !profile?.badge_revoked ? (
-              <p className="mt-1 text-xs text-[var(--text-soft)]">
-                Your profile is verified. The checkmark is currently visible to your buyers, building trust and helping you close more sales.
-              </p>
-            ) : profile?.badge_revoked ? (
-              <p className="mt-1 text-xs text-red-500">
-                Your verified badge has been revoked by Byroo administration. Please contact support.
-              </p>
-            ) : (
-              <p className="mt-1 text-xs text-[var(--text-soft)]">
-                Upgrade to Pro to instantly unlock your Verified Vendor badge. Show buyers you are a trusted, premium business.
-              </p>
+            </div>
+            {profile?.plan !== "pro" && (
+              <ButtonLink href="/dashboard/billing" size="sm">
+                Unlock Badge
+              </ButtonLink>
             )}
           </div>
-          {profile?.plan !== "pro" && (
-            <ButtonLink href="/dashboard/billing" size="sm">
-              Unlock Badge
-            </ButtonLink>
-          )}
-        </div>
-      </Card>
+        </Card>
+      </div>
 
-      <Card>
-        <div className="flex items-center justify-between gap-3">
-          <h3 className="text-sm font-semibold text-[var(--text-strong)]">Profile completion</h3>
-          <p className="text-sm font-semibold text-[var(--brand-600)]">{completionPercent}%</p>
-        </div>
-        <div className="mt-3 h-2 rounded-full bg-[var(--surface-muted)]">
-          <div
-            className="h-2 rounded-full bg-[var(--brand-500)] transition-all"
-            style={{ width: `${completionPercent}%` }}
-          />
-        </div>
-        <p className="mt-2 text-xs text-[var(--text-soft)]">
-          {completedCount} of {completionItems.length} setup steps completed
-        </p>
-        <div className="mt-4 grid gap-2">
-          {completionItems.map((item) => (
+      <div id="step-completion-card">
+        <Card>
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-sm font-semibold text-[var(--text-strong)]">Profile completion</h3>
+            <p className="text-sm font-semibold text-[var(--brand-600)]">{completionPercent}%</p>
+          </div>
+          <div className="mt-3 h-2 rounded-full bg-[var(--surface-muted)]">
             <div
-              key={item.label}
-              className="flex items-center justify-between rounded-lg border border-[var(--border-subtle)] px-3 py-2"
-            >
-              <div className="flex items-center gap-2">
-                <span
-                  className={
-                    item.done
-                      ? "inline-block h-2.5 w-2.5 rounded-full bg-emerald-500"
-                      : "inline-block h-2.5 w-2.5 rounded-full bg-amber-500"
-                  }
-                />
-                <p className="text-sm text-[var(--text-strong)]">{item.label}</p>
+              className="h-2 rounded-full bg-[var(--brand-500)] transition-all"
+              style={{ width: `${completionPercent}%` }}
+            />
+          </div>
+          <p className="mt-2 text-xs text-[var(--text-soft)]">
+            {completedCount} of {completionItems.length} setup steps completed
+          </p>
+          <div className="mt-4 grid gap-2">
+            {completionItems.map((item) => (
+              <div
+                key={item.label}
+                className="flex items-center justify-between rounded-lg border border-[var(--border-subtle)] px-3 py-2"
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className={
+                      item.done
+                        ? "inline-block h-2.5 w-2.5 rounded-full bg-emerald-500"
+                        : "inline-block h-2.5 w-2.5 rounded-full bg-amber-500"
+                    }
+                  />
+                  <p className="text-sm text-[var(--text-strong)]">{item.label}</p>
+                </div>
+                <ButtonLink href={item.href} variant="ghost" size="sm">
+                  {item.done ? "Edit" : "Complete"}
+                </ButtonLink>
               </div>
-              <ButtonLink href={item.href} variant="ghost" size="sm">
-                {item.done ? "Edit" : "Complete"}
-              </ButtonLink>
-            </div>
-          ))}
-        </div>
-      </Card>
+            ))}
+          </div>
+        </Card>
+      </div>
 
-      <Card>
-        <h3 className="text-sm font-semibold text-[var(--text-strong)]">Quick actions</h3>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <ButtonLink href="/dashboard/profile" variant="secondary">
-            Edit profile
-          </ButtonLink>
-          <ButtonLink href="/dashboard/links" variant="secondary">
-            Add link
-          </ButtonLink>
-          <ButtonLink href="/dashboard/socials" variant="secondary">
-            Connect socials
-          </ButtonLink>
-          <ButtonLink href="/dashboard/catalog" variant="secondary">
-            Add catalog item
-          </ButtonLink>
-          <ButtonLink href="/dashboard/billing">Upgrade</ButtonLink>
-        </div>
-      </Card>
+      <div id="step-quick-actions">
+        <Card>
+          <h3 className="text-sm font-semibold text-[var(--text-strong)]">Quick actions</h3>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <ButtonLink href="/dashboard/profile" variant="secondary">
+              Edit profile
+            </ButtonLink>
+            <ButtonLink href="/dashboard/links" variant="secondary">
+              Add link
+            </ButtonLink>
+            <ButtonLink href="/dashboard/socials" variant="secondary">
+              Connect socials
+            </ButtonLink>
+            <ButtonLink href="/dashboard/catalog" variant="secondary">
+              Add catalog item
+            </ButtonLink>
+            <ButtonLink href="/dashboard/billing">Upgrade</ButtonLink>
+            <RestartTourButton />
+          </div>
+        </Card>
+      </div>
+
+      <OnboardingTour tourCompleted={profile?.tour_completed ?? false} />
     </div>
   );
 }
