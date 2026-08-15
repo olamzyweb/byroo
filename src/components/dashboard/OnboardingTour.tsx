@@ -71,6 +71,14 @@ const tourSteps = [
       position: "top" as const,
     },
   },
+  {
+    element: "#step-storefront-preview",
+    popover: {
+      title: "Storefront Live Preview",
+      description: "Tap this preview button at any time to see a live mockup of your page. You can refresh it to instantly see updates as you edit your profile!",
+      position: "top" as const,
+    },
+  },
 ];
 
 // Helper to build the driver configuration with mobile sidebar integration

@@ -39,6 +39,7 @@ export function StorefrontPreviewFAB({ username }: StorefrontPreviewFABProps) {
     <>
       {/* Floating Action Button (Only visible on screens, floating at bottom-right) */}
       <motion.button
+        id="step-storefront-preview"
         onClick={() => setIsOpen(true)}
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
