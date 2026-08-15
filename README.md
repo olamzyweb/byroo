@@ -92,8 +92,6 @@ Pro:
    - `portfolio` (public)
    - `catalog` (public)
 6. `npm run dev`
-7. Bootstrap admin access:
-   - Insert your user id into `admin_users` (see `docs/SETUP.md`)
 8. Optional social sync setup:
    - set `SOCIAL_PROFILE_PROVIDER=searchapi`
    - set `SEARCHAPI_API_KEY`
@@ -108,17 +106,6 @@ Pro:
   - `PAYSTACK_PRO_PLAN_CODE`
   - `PAYSTACK_CALLBACK_URL`
 - Configure Paystack webhook URL:
-  - `https://your-domain.com/api/billing/webhook`
+  
 
-## Key Docs
-- [docs/PRD.md](docs/PRD.md)
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
-- [docs/DB_SCHEMA.md](docs/DB_SCHEMA.md)
-- [docs/TASKS.md](docs/TASKS.md)
-- [docs/DECISIONS.md](docs/DECISIONS.md)
-- [docs/SETUP.md](docs/SETUP.md)
-- [docs/DEPLOY.md](docs/DEPLOY.md)
-- [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)
-- [docs/COMPONENTS.md](docs/COMPONENTS.md)
-- [docs/UI_GUIDE.md](docs/UI_GUIDE.md)
-- [docs/ADMIN_PANEL.md](docs/ADMIN_PANEL.md)
+
