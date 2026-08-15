@@ -93,9 +93,15 @@ function createOnboardingDriver(options?: { onDestroyed?: () => void }) {
       if (isSidebarElement) {
         // Open the mobile sidebar programmatically
         window.dispatchEvent(new CustomEvent("byroo:open-sidebar"));
-        // Delay to allow slide animation, then recalculate driver popover position
+        
+        // Delay to allow slide animation to complete, then scroll and refresh popover position
         setTimeout(() => {
-          driver.refresh();
+          element.scrollIntoView({ block: "center", behavior: "auto" });
+          
+          // Wait a brief moment for the browser to finish the scroll before refreshing coordinates
+          setTimeout(() => {
+            driver.refresh();
+          }, 50);
         }, 320);
       } else {
         // Close the mobile sidebar for steps outside of the sidebar
