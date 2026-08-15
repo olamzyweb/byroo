@@ -342,7 +342,16 @@ export class PaystackBillingProvider implements BillingProvider {
       return;
     }
 
-    const query = `/subscription?customer=${encodeURIComponent(customerCode)}`;
+    // Paystack's subscription listing endpoint requires the internal integer ID, not the CUS_ code.
+    const customerRes = await paystackRequest<{ data: { id: number } }>(`/customer/${encodeURIComponent(customerCode)}`);
+    const customerId = customerRes.data?.id;
+
+    if (!customerId) {
+      console.log(`[PROOF-TRACKER] Cannot resolve integer customer ID for ${customerCode}`);
+      return;
+    }
+
+    const query = `/subscription?customer=${encodeURIComponent(customerId)}`;
     const payload = await paystackRequest<PaystackListSubscriptionsResponse>(query);
     const rows = payload.data ?? [];
 
