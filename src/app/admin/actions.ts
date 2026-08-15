@@ -103,8 +103,13 @@ export async function syncPaystackSubscriptionAction(formData: FormData) {
     redirect(`${returnTo}?error=Provider+sync+is+not+supported`);
   }
 
-  await provider.syncSubscriptionForUser({ userId: targetUserId, customerCode });
-  await writeAuditLog(adminUser.id, "sync_subscription", targetUserId, { customerCode });
+  try {
+    await provider.syncSubscriptionForUser({ userId: targetUserId, customerCode });
+    await writeAuditLog(adminUser.id, "sync_subscription", targetUserId, { customerCode });
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Sync failed";
+    redirect(`${returnTo}?error=${encodeURIComponent(msg)}`);
+  }
 
   revalidatePath("/admin/subscriptions");
   redirect(`${returnTo}?message=Subscription+sync+requested`);
