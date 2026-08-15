@@ -51,12 +51,7 @@ Dashboard:
 - `/dashboard/analytics`
 - `/dashboard/billing`
 
-Admin:
-- `/admin`
-- `/admin/users`
-- `/admin/subscriptions`
-- `/admin/analytics`
-- `/admin/system`
+
 
 ## Plan Limits
 Free:
