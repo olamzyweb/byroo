@@ -7,6 +7,7 @@ import { Avatar, Badge, Card, Divider } from "@/components/ui";
 import { logoutAction } from "@/app/dashboard/actions";
 import { createClient } from "@/lib/supabase/server";
 import { MobileSidebarWrapper } from "@/components/dashboard/mobile-sidebar";
+import { StorefrontPreviewFAB } from "@/components/dashboard/StorefrontPreviewFAB";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -87,6 +88,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <MobileSidebarWrapper sidebar={sidebarContent}>
       {children}
+      {profile?.username && (
+        <StorefrontPreviewFAB username={profile.username} />
+      )}
     </MobileSidebarWrapper>
   );
 }
