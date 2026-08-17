@@ -3,6 +3,7 @@ import { BadgeCheck, Lock } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
 import { OnboardingTour, RestartTourButton } from "@/components/dashboard/OnboardingTour";
+import { QrShareCard } from "@/components/dashboard/qr-share-card";
 
 export default async function DashboardPage() {
   const user = await requireUser();
@@ -162,6 +163,19 @@ export default async function DashboardPage() {
           </div>
         </Card>
       </div>
+
+      {profile?.username ? (
+        <div id="step-qr-card">
+          <QrShareCard
+            username={profile.username}
+            displayName={profile.display_name || "Byroo Store"}
+            avatarUrl={profile.avatar_url}
+            plan={profile.plan || "free"}
+            hasCatalogItems={(catalogCount ?? 0) > 0}
+            hasServices={(serviceCount ?? 0) > 0}
+          />
+        </div>
+      ) : null}
 
       <div id="step-quick-actions">
         <Card>

@@ -64,6 +64,14 @@ const tourSteps = [
     },
   },
   {
+    element: "#step-qr-card",
+    popover: {
+      title: "Storefront QR Flyer",
+      description: "Customize and print a beautiful marketing flyer for your packaging or store counter, or download your raw QR code to share.",
+      position: "top" as const,
+    },
+  },
+  {
     element: "#step-quick-actions",
     popover: {
       title: "Quick Access and Sharing",
