@@ -1,4 +1,4 @@
-﻿import { saveProfileAction, uploadAvatarAction, uploadHeaderImageAction } from "@/app/dashboard/actions";
+import { saveProfileAction, uploadAvatarAction, uploadHeaderImageAction } from "@/app/dashboard/actions";
 import { SubmitButton } from "@/components/submit-button";
 import { Avatar, Card, HelperText, Input, SectionHeader, TextArea } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
@@ -38,11 +38,7 @@ export default async function ProfilePage({
               <label className="mb-1 block text-xs uppercase tracking-[0.14em] text-[var(--text-soft)]">Bio</label>
               <TextArea name="bio" rows={3} defaultValue={profile?.bio ?? ""} />
             </div>
-            <div className="grid gap-3 md:grid-cols-3">
-              <Input name="instagramUrl" defaultValue={profile?.instagram_url ?? ""} placeholder="Instagram URL" />
-              <Input name="tiktokUrl" defaultValue={profile?.tiktok_url ?? ""} placeholder="TikTok URL" />
-              <Input name="facebookUrl" defaultValue={profile?.facebook_url ?? ""} placeholder="Facebook URL" />
-            </div>
+
             <div>
               <label className="mb-1 block text-xs uppercase tracking-[0.14em] text-[var(--text-soft)]">Trusted badge text</label>
               <Input name="trustedBadgeText" defaultValue={profile?.trusted_badge_text ?? ""} placeholder="Trusted by 500+ happy customers" />

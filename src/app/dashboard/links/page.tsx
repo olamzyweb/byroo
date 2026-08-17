@@ -1,4 +1,4 @@
-﻿import {
+import {
   addLinkAction,
   deleteLinkAction,
   reorderLinkAction,
@@ -8,6 +8,7 @@ import { SubmitButton } from "@/components/submit-button";
 import { Badge, Card, EmptyState, HelperText, Input, SectionHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { LinkIcon } from "@/components/link-icon";
 
 export default async function LinksPage({
   searchParams,
@@ -56,7 +57,7 @@ export default async function LinksPage({
         {(links ?? []).map((link) => (
           <Card key={link.id} className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-start gap-3">
-              <span className="select-none pt-1 text-[var(--text-soft)]">??</span>
+              <LinkIcon type={link.type} url={link.url} className="h-5 w-5 pt-0.5 text-[var(--text-soft)] shrink-0" />
               <div>
                 <p className="text-sm font-semibold text-[var(--text-strong)]">{link.title}</p>
                 <p className="text-xs text-[var(--text-soft)]">{link.url}</p>

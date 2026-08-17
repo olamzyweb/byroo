@@ -9,6 +9,7 @@ import { env } from "@/lib/config";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { buildItemWhatsAppMessage, buildServiceWhatsAppMessage, toWhatsAppLink } from "@/lib/whatsapp";
 import type { CatalogItem, LinkItem, PortfolioItem, Profile, ServiceItem, SocialProfile, Testimonial, Theme } from "@/lib/types";
+import { LinkIcon } from "@/components/link-icon";
 
 async function getPublicData(username: string) {
   const admin = createAdminClient();
@@ -94,72 +95,7 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
   };
 }
 
-type QuickActionKind = "whatsapp" | "instagram" | "tiktok" | "facebook" | "maps";
 
-function quickActions(profile: Profile) {
-  const actions: Array<{ label: string; href: string; kind: QuickActionKind }> = [];
-  if (profile.whatsapp_number) {
-    actions.push({
-      label: "WhatsApp",
-      href: toWhatsAppLink(profile.whatsapp_number, profile.whatsapp_prefill),
-      kind: "whatsapp",
-    });
-  }
-  if (profile.instagram_url) {
-    actions.push({ label: "Instagram", href: profile.instagram_url, kind: "instagram" });
-  }
-  if (profile.tiktok_url) {
-    actions.push({ label: "TikTok", href: profile.tiktok_url, kind: "tiktok" });
-  }
-  if (profile.facebook_url) {
-    actions.push({ label: "Facebook", href: profile.facebook_url, kind: "facebook" });
-  }
-  if (profile.google_maps_url) {
-    actions.push({ label: "Open in Maps", href: profile.google_maps_url, kind: "maps" });
-  }
-  return actions;
-}
-
-function ActionIcon({ kind }: { kind: QuickActionKind }) {
-  const iconClass = "h-4 w-4";
-  if (kind === "whatsapp") {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden="true">
-        <path d="M12 3a9 9 0 0 0-7.79 13.5L3 21l4.66-1.2A9 9 0 1 0 12 3Z" stroke="currentColor" strokeWidth="1.8" />
-        <path d="M9 8.8c.2-.5.4-.5.7-.5h.6c.2 0 .4 0 .5.3l1 2.3c.1.2.1.4 0 .6l-.4.7c-.1.2-.2.3 0 .5.5.9 1.3 1.7 2.2 2.2.2.1.4.1.5 0l.7-.4c.2-.1.4-.1.6 0l2.2 1c.3.1.3.3.3.5v.6c0 .3 0 .5-.5.7-.5.2-1.4.4-2.8-.1-1.2-.4-2.3-1.3-3.3-2.3s-1.9-2.1-2.3-3.3c-.5-1.4-.3-2.3-.1-2.8Z" fill="currentColor" />
-      </svg>
-    );
-  }
-  if (kind === "instagram") {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden="true">
-        <rect x="4" y="4" width="16" height="16" rx="5" stroke="currentColor" strokeWidth="1.8" />
-        <circle cx="12" cy="12" r="3.5" stroke="currentColor" strokeWidth="1.8" />
-        <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" />
-      </svg>
-    );
-  }
-  if (kind === "tiktok") {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden="true">
-        <path d="M14 4v7a3.2 3.2 0 1 1-2.4-3.1V6.2A5.4 5.4 0 1 0 16 11V8.8c1 .7 2.1 1.1 3.3 1.2V7.7c-1.7-.2-3-1.6-3.3-3.7H14Z" fill="currentColor" />
-      </svg>
-    );
-  }
-  if (kind === "facebook") {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden="true">
-        <path d="M13.3 20v-6h2.1l.4-2.6h-2.5V9.7c0-.8.2-1.4 1.3-1.4h1.3V6a15.7 15.7 0 0 0-1.9-.1c-1.9 0-3.2 1.2-3.2 3.4v2h-2.1V14h2.1v6h2.5Z" fill="currentColor" />
-      </svg>
-    );
-  }
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={iconClass} aria-hidden="true">
-      <path d="M12 21s6-5.2 6-10a6 6 0 1 0-12 0c0 4.8 6 10 6 10Z" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="12" cy="11" r="2.2" stroke="currentColor" strokeWidth="1.8" />
-    </svg>
-  );
-}
 
 function getMapEmbedSrc(location?: string | null, mapsUrl?: string | null): string | null {
   if (location && location.trim()) {
@@ -206,7 +142,6 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
 
   const t = data.theme.tokens;
   const showBranding = data.profile.plan === "free" || !data.profile.branding_hidden;
-  const actions = quickActions(data.profile);
   const mapEmbedSrc = getMapEmbedSrc(data.profile.business_location, data.profile.google_maps_url);
 
   return (
@@ -307,36 +242,26 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
           </div>
         </div>
 
-        <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.14em]" style={{ color: t.muted }}>Quick Actions</h2>
-          <div className="grid grid-cols-2 gap-2">
-            {actions.map((action) => (
-              <a
-                key={action.label}
-                href={action.href}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-center text-sm font-medium transition hover:translate-y-[-1px]"
-                style={{ borderColor: `${t.accent}44` }}
-              >
-                <ActionIcon kind={action.kind} />
-                {action.label}
-              </a>
-            ))}
-            {data.links.map((link) => (
-              <a
-                key={link.id}
-                href={`/api/analytics/click?linkId=${encodeURIComponent(link.id)}&target=${encodeURIComponent(link.url)}`}
-                target="_blank"
-                rel="noreferrer"
-                className="block rounded-xl border px-4 py-3 text-center text-sm font-medium transition hover:translate-y-[-1px]"
-                style={{ borderColor: `${t.accent}44` }}
-              >
-                {link.title}
-              </a>
-            ))}
-          </div>
-        </section>
+        {data.links.length > 0 ? (
+          <section>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.14em]" style={{ color: t.muted }}>Quick Actions</h2>
+            <div className="grid grid-cols-2 gap-2">
+              {data.links.map((link) => (
+                <a
+                  key={link.id}
+                  href={`/api/analytics/click?linkId=${encodeURIComponent(link.id)}&target=${encodeURIComponent(link.url)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-center text-sm font-medium transition hover:translate-y-[-1px]"
+                  style={{ borderColor: `${t.accent}44` }}
+                >
+                  <LinkIcon type={link.type} url={link.url} />
+                  {link.title}
+                </a>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         {data.socialProfiles.length > 0 ? (
           <section>

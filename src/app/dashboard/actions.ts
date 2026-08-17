@@ -140,9 +140,6 @@ export async function saveProfileAction(formData: FormData) {
       .min(3)
       .max(24)
       .regex(/^[a-z0-9_]+$/),
-    instagramUrl: z.string().max(200).optional(),
-    tiktokUrl: z.string().max(200).optional(),
-    facebookUrl: z.string().max(200).optional(),
     trustedBadgeText: z.string().max(120).optional(),
   });
 
@@ -150,9 +147,6 @@ export async function saveProfileAction(formData: FormData) {
     displayName: String(formData.get("displayName") ?? "").trim(),
     bio: String(formData.get("bio") ?? "").trim(),
     username: normalizeUsername(String(formData.get("username") ?? "")),
-    instagramUrl: ensureHttps(String(formData.get("instagramUrl") ?? "").trim()),
-    tiktokUrl: ensureHttps(String(formData.get("tiktokUrl") ?? "").trim()),
-    facebookUrl: ensureHttps(String(formData.get("facebookUrl") ?? "").trim()),
     trustedBadgeText: String(formData.get("trustedBadgeText") ?? "").trim(),
   });
 
@@ -176,9 +170,6 @@ export async function saveProfileAction(formData: FormData) {
       display_name: parsed.data.displayName,
       bio: parsed.data.bio || null,
       username: parsed.data.username,
-      instagram_url: parsed.data.instagramUrl || null,
-      tiktok_url: parsed.data.tiktokUrl || null,
-      facebook_url: parsed.data.facebookUrl || null,
       trusted_badge_text: parsed.data.trustedBadgeText || null,
       onboarded: true,
     })
