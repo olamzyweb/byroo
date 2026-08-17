@@ -10,6 +10,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { buildItemWhatsAppMessage, buildServiceWhatsAppMessage, toWhatsAppLink } from "@/lib/whatsapp";
 import type { CatalogItem, LinkItem, PortfolioItem, Profile, ServiceItem, SocialProfile, Testimonial, Theme } from "@/lib/types";
 import { LinkIcon } from "@/components/link-icon";
+import { StorefrontCatalog } from "@/components/public/storefront-catalog";
 
 async function getPublicData(username: string) {
   const admin = createAdminClient();
@@ -323,37 +324,11 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
         ) : null}
 
         {data.catalogItems.length > 0 ? (
-          <section>
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.14em]" style={{ color: t.muted }}>Catalog</h2>
-            <div className="grid grid-cols-2 gap-3">
-              {data.catalogItems.map((item) => {
-                const message = buildItemWhatsAppMessage(item.name, item.whatsapp_prefill || data.profile.whatsapp_prefill);
-                const href = data.profile.whatsapp_number ? toWhatsAppLink(data.profile.whatsapp_number, message) : "#";
-                return (
-                  <div key={item.id} className="rounded-xl border p-3" style={{ borderColor: `${t.accent}2f` }}>
-                    {item.image_url ? (
-                      <img
-                        src={item.image_url}
-                        alt={item.name}
-                        className="aspect-[4/3] w-full rounded-lg object-cover object-center"
-                      />
-                    ) : null}
-                    <div className="mt-2 flex items-center justify-between gap-2">
-                      <h3 className="text-sm font-semibold">{item.name}</h3>
-                      <Badge tone={item.availability_status === "available" ? "success" : "warning"}>{item.availability_status}</Badge>
-                    </div>
-                    {item.price ? <p className="mt-1 text-sm font-medium">{item.price}</p> : null}
-                    {item.short_description ? <p className="mt-1 text-xs" style={{ color: t.muted }}>{item.short_description}</p> : null}
-                    {data.profile.whatsapp_number ? (
-                      <a href={href} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs font-semibold" style={{ color: t.accent }}>
-                        {item.cta_text || (item.cta_type === "order_whatsapp" ? "Order on WhatsApp" : "Inquire on WhatsApp")}
-                      </a>
-                    ) : null}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
+          <StorefrontCatalog
+            catalogItems={data.catalogItems}
+            profile={data.profile}
+            themeTokens={t}
+          />
         ) : null}
 
         {data.services.length > 0 ? (
