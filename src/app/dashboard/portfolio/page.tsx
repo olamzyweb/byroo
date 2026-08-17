@@ -1,8 +1,9 @@
-﻿import { addPortfolioAction, deletePortfolioAction } from "@/app/dashboard/actions";
+import { addPortfolioAction, deletePortfolioAction } from "@/app/dashboard/actions";
 import { SubmitButton } from "@/components/submit-button";
 import { Card, EmptyState, HelperText, Input, SectionHeader, TextArea } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { ImageCompressorInput } from "@/components/dashboard/image-compressor-input";
 
 export default async function PortfolioPage({
   searchParams,
@@ -31,7 +32,7 @@ export default async function PortfolioPage({
           <TextArea name="description" rows={3} placeholder="What did you build?" />
           <div className="grid gap-3 md:grid-cols-2">
             <Input name="externalUrl" placeholder="https://project-link.com" />
-            <Input type="file" name="image" accept="image/*" />
+            <ImageCompressorInput name="image" accept="image/*" />
           </div>
           <SubmitButton className="w-fit">
             Add portfolio item

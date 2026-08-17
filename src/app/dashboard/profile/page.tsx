@@ -3,6 +3,7 @@ import { SubmitButton } from "@/components/submit-button";
 import { Avatar, Card, HelperText, Input, SectionHeader, TextArea } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { ImageCompressorInput } from "@/components/dashboard/image-compressor-input";
 
 export default async function ProfilePage({
   searchParams,
@@ -51,7 +52,7 @@ export default async function ProfilePage({
           <Card>
             <h3 className="text-sm font-semibold">Avatar</h3>
             <form action={uploadAvatarAction} className="mt-3 space-y-3">
-              <Input type="file" name="avatar" accept="image/*" />
+              <ImageCompressorInput name="avatar" accept="image/*" />
               <SubmitButton variant="secondary" pendingText="Uploading...">
                 Upload avatar
               </SubmitButton>
@@ -61,7 +62,7 @@ export default async function ProfilePage({
           <Card>
             <h3 className="text-sm font-semibold">Header background</h3>
             <form action={uploadHeaderImageAction} className="mt-3 space-y-3">
-              <Input type="file" name="headerImage" accept="image/*" />
+              <ImageCompressorInput name="headerImage" accept="image/*" />
               <SubmitButton variant="secondary" pendingText="Uploading...">
                 Upload header image
               </SubmitButton>

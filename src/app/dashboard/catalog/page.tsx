@@ -1,8 +1,9 @@
-﻿import { addCatalogItemAction, deleteCatalogItemAction } from "@/app/dashboard/actions";
+import { addCatalogItemAction, deleteCatalogItemAction } from "@/app/dashboard/actions";
 import { SubmitButton } from "@/components/submit-button";
 import { Badge, Card, EmptyState, HelperText, Input, SectionHeader, TextArea } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { ImageCompressorInput } from "@/components/dashboard/image-compressor-input";
 
 export default async function CatalogPage({
   searchParams,
@@ -44,7 +45,7 @@ export default async function CatalogPage({
               <option value="inquire_whatsapp">Inquire on WhatsApp</option>
             </select>
             <Input name="ctaText" defaultValue="Order on WhatsApp" placeholder="CTA text" />
-            <Input type="file" name="image" accept="image/*" />
+            <ImageCompressorInput name="image" accept="image/*" />
           </div>
           <TextArea name="whatsappPrefill" rows={2} placeholder="Hello, I found your store on Byroo and I want to order {item_name}." />
           <SubmitButton className="w-fit">
