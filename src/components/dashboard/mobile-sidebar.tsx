@@ -9,9 +9,11 @@ import { BrandLogo } from "@/components/brand-logo";
 export function MobileSidebarWrapper({
   sidebar,
   children,
+  completionPercent,
 }: {
   sidebar: React.ReactNode;
   children: React.ReactNode;
+  completionPercent?: number;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
@@ -56,10 +58,16 @@ export function MobileSidebarWrapper({
         </Link>
         <button
           onClick={() => setIsOpen(true)}
-          className="rounded-md p-2 hover:bg-[var(--surface-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
+          className="relative rounded-md p-2 hover:bg-[var(--surface-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
           aria-label="Open menu"
         >
           <Menu className="h-6 w-6 text-[var(--text)]" />
+          {completionPercent !== undefined && completionPercent < 100 && (
+            <span className="absolute right-1.5 top-1.5 flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-500 opacity-75"></span>
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
+            </span>
+          )}
         </button>
       </div>
 

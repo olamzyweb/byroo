@@ -195,15 +195,30 @@ export async function launchCampaign(campaignId: string) {
 
       // Enqueue custom email
       // We pass campaign variables like custom body text to the templates
+      const displayName = user.displayName || "Creator";
+      const firstName = displayName.split(" ")[0] || "Creator";
+      const dashboardUrl = `${baseUrl}/dashboard`;
+      const businessUrl = user.username ? `${baseUrl}/${user.username}` : baseUrl;
+
       const dispatchResult = await enqueueEmail(
         user.email,
         campaign.templateName,
         {
-          name: user.displayName,
-          businessName: user.displayName,
-          businessUrl: user.username ? `${baseUrl}/${user.username}` : baseUrl,
+          name: displayName,
+          firstName: firstName,
+          first_name: firstName,
+          displayName: displayName,
+          businessName: displayName,
+          business_name: displayName,
+          businessUrl: businessUrl,
+          business_url: businessUrl,
+          business_link: businessUrl,
+          dashboardUrl: dashboardUrl,
+          dashboard_url: dashboardUrl,
+          dashboard_link: dashboardUrl,
           subject: campaign.subject,
           customBody: campaign.customBody,
+          bodyText: campaign.customBody,
           campaignId: campaignId,
         },
         { userId: user.id }

@@ -84,7 +84,13 @@ const sendEmailFunction = inngest.createFunction(
         case "onboarding-day7":
           return EmailService.sendLifecycleEmail(userId || "", recipientEmail, variables.name, 7, variables);
         case "custom":
-          return EmailService.sendCustomEmail(userId || undefined, recipientEmail, variables.subject, variables.bodyText || variables.customBody || "");
+          return EmailService.sendCustomEmail(
+            userId || undefined,
+            recipientEmail,
+            variables.subject || "Byroo Broadcast",
+            variables.bodyText || variables.customBody || "",
+            variables
+          );
         default:
           throw new Error(`Unsupported background template name: ${templateName}`);
       }

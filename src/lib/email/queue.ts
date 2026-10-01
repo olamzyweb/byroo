@@ -101,7 +101,13 @@ export async function enqueueEmail(
           "onboarding-day5": () => EmailService.sendLifecycleEmail(options?.userId || "", recipientEmail, variables.name || "Creator", 5, variables),
           "onboarding-day6": () => EmailService.sendLifecycleEmail(options?.userId || "", recipientEmail, variables.name || "Creator", 6, variables),
           "onboarding-day7": () => EmailService.sendLifecycleEmail(options?.userId || "", recipientEmail, variables.name || "Creator", 7, variables),
-          "custom": () => EmailService.sendCustomEmail(options?.userId || undefined, recipientEmail, variables.subject || "Byroo Notification", variables.bodyText || variables.customBody || ""),
+          "custom": () => EmailService.sendCustomEmail(
+            options?.userId || undefined,
+            recipientEmail,
+            variables.subject || "Byroo Notification",
+            variables.bodyText || variables.customBody || "",
+            variables
+          ),
         };
 
         const execute = triggerMap[templateName];

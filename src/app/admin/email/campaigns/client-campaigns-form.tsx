@@ -105,15 +105,73 @@ export default function ClientCampaignsForm({
     return <span className="text-xs text-gray-400 font-semibold select-none">No actions</span>;
   }
 
+  const loadIndependenceDayPreset = () => {
+    setTitle("Independence Day & New Month Broadcast - Oct 1");
+    setSubject("Happy Independence Day, Nigeria 🇳🇬 | Keep Building");
+    setTemplateName("custom");
+    setSegment("all");
+    setCustomBody(
+`Hi {{first_name}},
+
+**Happy Independence Day, Nigeria. 🇳🇬**
+
+There are millions of people building something in Nigeria right now.
+
+Someone starting a fashion brand from their bedroom.
+Someone turning a skill into a business.
+Someone selling online for the first time.
+Someone taking a small business they've run for years and finally putting it online.
+
+We built Byroo for them.
+For **you**.
+
+Because your business deserves more than being buried inside a WhatsApp chat or lost among social media posts.
+
+It deserves a place people can discover, explore, and connect with.
+
+As we begin a new month, take a moment to look at your Byroo space and make it better:
+• Add something new to your catalog
+• Update your information and bio
+• Share your link with customers and friends
+
+**Your business may be small today. That doesn't mean it should be invisible.**
+
+👉 {{dashboard_link}}
+
+Here's to Nigerian businesses that keep building.
+
+**Happy Independence Day 🇳🇬**
+
+— **The Byroo Team**`
+    );
+  };
+
   // 2. Render configuration builder form
   return (
     <form onSubmit={handleSubmit} className="space-y-4 text-sm text-gray-800">
+      {/* Quick Preset Action */}
+      <div className="bg-emerald-50/60 border border-solid border-emerald-200 rounded-lg p-3">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <p className="text-xs font-bold text-emerald-900">🇳🇬 Independence Day Preset</p>
+            <p className="text-[11px] text-emerald-700">Auto-fill today's celebratory copy & variables</p>
+          </div>
+          <button
+            type="button"
+            onClick={loadIndependenceDayPreset}
+            className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-2.5 py-1.5 rounded-md transition shadow-xs whitespace-nowrap"
+          >
+            Load Preset
+          </button>
+        </div>
+      </div>
+
       <div>
         <label className="block text-xs font-semibold text-gray-500 mb-1">Campaign Label</label>
         <input
           type="text"
           required
-          placeholder="e.g. Weekly Seller Digest July Week 3"
+          placeholder="e.g. Independence Day & New Month Broadcast - Oct 1"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="w-full bg-gray-50 border border-solid border-gray-200 px-3 py-2 rounded-lg focus:outline-none focus:border-indigo-500 text-gray-800"
@@ -125,7 +183,7 @@ export default function ClientCampaignsForm({
         <input
           type="text"
           required
-          placeholder="e.g. Grow your storefront sales on Byroo!"
+          placeholder="e.g. Happy Independence Day, Nigeria 🇳🇬 | Keep Building"
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           className="w-full bg-gray-50 border border-solid border-gray-200 px-3 py-2 rounded-lg focus:outline-none focus:border-indigo-500 text-gray-800"
@@ -154,22 +212,25 @@ export default function ClientCampaignsForm({
             onChange={(e) => setTemplateName(e.target.value)}
             className="w-full bg-gray-50 border border-solid border-gray-200 px-3 py-2 rounded-lg focus:outline-none focus:border-indigo-500 text-gray-800"
           >
+            <option value="custom">Custom Broadcast (Use Message Body)</option>
             <option value="welcome">Welcome Onboarding</option>
             <option value="profile-completed">Profile Completed</option>
             <option value="business-verified">Verified Trusted Badge</option>
-            <option value="custom">Custom Broadcast (Use Message Body)</option>
           </select>
         </div>
       </div>
 
       <div>
-        <label className="block text-xs font-semibold text-gray-500 mb-1">Custom Message Body (Optional)</label>
+        <div className="flex items-center justify-between mb-1">
+          <label className="block text-xs font-semibold text-gray-500">Custom Message Body</label>
+          <span className="text-[10px] text-gray-400">Supports: &#123;&#123;first_name&#125;&#125;, &#123;&#123;dashboard_link&#125;&#125;</span>
+        </div>
         <textarea
           placeholder="Add customized campaign announcement text..."
           value={customBody}
           onChange={(e) => setCustomBody(e.target.value)}
-          rows={5}
-          className="w-full bg-gray-50 border border-solid border-gray-200 px-3 py-2 rounded-lg focus:outline-none focus:border-indigo-500 text-gray-800 resize-none font-sans"
+          rows={7}
+          className="w-full bg-gray-50 border border-solid border-gray-200 px-3 py-2 rounded-lg focus:outline-none focus:border-indigo-500 text-gray-800 resize-y font-sans text-xs leading-relaxed"
         />
       </div>
 

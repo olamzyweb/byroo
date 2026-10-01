@@ -778,17 +778,46 @@ export const EmailService = {
     });
   },
 
-  async sendCustomEmail(userId: string | undefined, email: string, subject: string, bodyText: string) {
+  async sendCustomEmail(
+    userId: string | undefined,
+    email: string,
+    subject: string,
+    bodyText: string,
+    variables: Record<string, any> = {}
+  ) {
     const unsubToken = userId ? generateUnsubscribeToken(userId, email) : undefined;
+    const name = variables.name || variables.displayName || "Creator";
+    const firstName = variables.firstName || variables.first_name || name.split(" ")[0] || "Creator";
+    const dashboardUrl = `${emailConfig.baseUrl}/dashboard`;
+    const businessUrl = variables.businessUrl || (variables.username ? `${emailConfig.baseUrl}/${variables.username}` : emailConfig.baseUrl);
+    const businessName = variables.businessName || name;
+
+    const mergedVariables = {
+      name,
+      firstName,
+      first_name: firstName,
+      dashboardUrl,
+      dashboard_link: dashboardUrl,
+      businessUrl,
+      business_url: businessUrl,
+      businessName,
+      business_name: businessName,
+      ...variables,
+      subject,
+      bodyText,
+    };
+
     return this.send({
       userId,
       recipientEmail: email,
       subject,
       templateName: "custom",
       category: "marketing",
-      variables: { bodyText },
+      variables: mergedVariables,
       templateComponent: React.createElement(CustomEmail, {
         bodyText,
+        subject,
+        variables: mergedVariables,
         unsubscribeToken: unsubToken,
       }),
     });

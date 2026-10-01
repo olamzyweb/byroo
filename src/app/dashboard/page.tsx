@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
 import { OnboardingTour, RestartTourButton } from "@/components/dashboard/OnboardingTour";
 import { QrShareCard } from "@/components/dashboard/qr-share-card";
+import { getOnboardingProgress } from "@/lib/onboarding";
 
 export default async function DashboardPage() {
   const user = await requireUser();
@@ -29,46 +30,17 @@ export default async function DashboardPage() {
       .single(),
   ]);
 
-  const completionItems = [
-    {
-      label: "Claim your username",
-      done: Boolean(profile?.username),
-      href: "/dashboard/profile",
-    },
-    {
-      label: "Add profile photo",
-      done: Boolean(profile?.avatar_url),
-      href: "/dashboard/profile",
-    },
-    {
-      label: "Write a short bio",
-      done: Boolean(profile?.bio),
-      href: "/dashboard/profile",
-    },
-    {
-      label: "Set WhatsApp number",
-      done: Boolean(profile?.whatsapp_number),
-      href: "/dashboard/whatsapp",
-    },
-    {
-      label: "Add at least one link",
-      done: (linkCount ?? 0) > 0,
-      href: "/dashboard/links",
-    },
-    {
-      label: "Add one offer (catalog or service)",
-      done: (catalogCount ?? 0) > 0 || (serviceCount ?? 0) > 0,
-      href: (catalogCount ?? 0) > 0 ? "/dashboard/services" : "/dashboard/catalog",
-    },
-    {
-      label: "Connect social proof",
-      done: (socialProofCount ?? 0) > 0,
-      href: "/dashboard/socials",
-    },
-  ];
-
-  const completedCount = completionItems.filter((item) => item.done).length;
-  const completionPercent = Math.round((completedCount / completionItems.length) * 100);
+  const {
+    completionItems,
+    completionPercent,
+    completedCount,
+  } = getOnboardingProgress({
+    profile,
+    linkCount: linkCount ?? 0,
+    catalogCount: catalogCount ?? 0,
+    serviceCount: serviceCount ?? 0,
+    socialProofCount: socialProofCount ?? 0,
+  });
 
   return (
     <div className="space-y-6">
