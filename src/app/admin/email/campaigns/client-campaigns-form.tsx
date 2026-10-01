@@ -111,36 +111,36 @@ export default function ClientCampaignsForm({
     setTemplateName("custom");
     setSegment("all");
     setCustomBody(
-`Hi {{first_name}},
+`Hi {{business_name}},
 
 **Happy Independence Day, Nigeria. 🇳🇬**
 
-There are millions of people building something in Nigeria right now.
+Across the country today, millions of Nigerians are quietly building something from the ground up:
 
-Someone starting a fashion brand from their bedroom.
-Someone turning a skill into a business.
-Someone selling online for the first time.
-Someone taking a small business they've run for years and finally putting it online.
+• Someone launching a fashion line right from their bedroom.
+• Someone turning a creative skill into a full-time business.
+• Someone making their very first sale online.
+• Someone taking a shop they've run offline for years and finally giving it a digital home.
 
 We built Byroo for them.
-For **you**.
+We built it for **you**.
 
-Because your business deserves more than being buried inside a WhatsApp chat or lost among social media posts.
+Because your business deserves more than disappearing inside a noisy WhatsApp chat or getting buried under social media posts.
 
-It deserves a place people can discover, explore, and connect with.
+It deserves a permanent space where customers can easily browse, discover, and order from you.
 
-As we begin a new month, take a moment to look at your Byroo space and make it better:
-• Add something new to your catalog
-• Update your information and bio
-• Share your link with customers and friends
+As we step into a new month and the final quarter of the year, take 2 minutes today to elevate your business:
+✨ **Add something new** to your catalog
+✨ **Refresh your bio** and contact details
+✨ **Share your Byroo link** with your customers & network
 
-**Your business may be small today. That doesn't mean it should be invisible.**
+**Your business may start small, but it should never be invisible.**
 
 👉 {{dashboard_link}}
 
-Here's to Nigerian businesses that keep building.
+Here’s to Nigerian builders who keep creating against all odds.
 
-**Happy Independence Day 🇳🇬**
+**Happy Independence Day & Happy New Month 🇳🇬**
 
 — **The Byroo Team**`
     );
@@ -223,7 +223,7 @@ Here's to Nigerian businesses that keep building.
       <div>
         <div className="flex items-center justify-between mb-1">
           <label className="block text-xs font-semibold text-gray-500">Custom Message Body</label>
-          <span className="text-[10px] text-gray-400">Supports: &#123;&#123;first_name&#125;&#125;, &#123;&#123;dashboard_link&#125;&#125;</span>
+          <span className="text-[10px] text-gray-400">Supports: &#123;&#123;business_name&#125;&#125;, &#123;&#123;username&#125;&#125;, &#123;&#123;dashboard_link&#125;&#125;</span>
         </div>
         <textarea
           placeholder="Add customized campaign announcement text..."

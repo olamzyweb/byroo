@@ -34,14 +34,16 @@ export const CustomEmail: React.FC<CustomEmailProps> = ({
   unsubscribeToken,
 }) => {
   // Resolve standard variable placeholders
-  const name = variables.name || variables.displayName || "Creator";
-  const firstName = variables.firstName || variables.first_name || name.split(" ")[0] || "Creator";
+  const username = variables.username || "";
+  const name = variables.name || variables.displayName || (username ? `@${username}` : "Creator");
+  const firstName = variables.firstName || variables.first_name || (name.startsWith("@") ? name : name.split(" ")[0]) || "Creator";
   const dashboardUrl = variables.dashboardUrl || variables.dashboard_link || "https://byroo.digital/dashboard";
-  const businessUrl = variables.businessUrl || variables.business_url || "https://byroo.digital";
-  const businessName = variables.businessName || variables.business_name || name;
+  const businessUrl = variables.businessUrl || variables.business_url || (username ? `https://byroo.digital/${username}` : "https://byroo.digital");
+  const businessName = variables.businessName || variables.business_name || variables.displayName || variables.name || (username ? `@${username}` : "Creator");
 
   // Replace placeholders in text
   let processedText = bodyText
+    .replace(/\{\{\s*username\s*\}\}/gi, username || "creator")
     .replace(/\{\{\s*first_name\s*\}\}/gi, firstName)
     .replace(/\{\{\s*firstName\s*\}\}/gi, firstName)
     .replace(/\{\{\s*name\s*\}\}/gi, name)

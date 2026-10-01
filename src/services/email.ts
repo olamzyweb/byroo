@@ -786,13 +786,15 @@ export const EmailService = {
     variables: Record<string, any> = {}
   ) {
     const unsubToken = userId ? generateUnsubscribeToken(userId, email) : undefined;
-    const name = variables.name || variables.displayName || "Creator";
-    const firstName = variables.firstName || variables.first_name || name.split(" ")[0] || "Creator";
+    const username = variables.username || "";
+    const name = variables.name || variables.displayName || (username ? `@${username}` : "Creator");
+    const firstName = variables.firstName || variables.first_name || (name.startsWith("@") ? name : name.split(" ")[0]) || "Creator";
     const dashboardUrl = `${emailConfig.baseUrl}/dashboard`;
-    const businessUrl = variables.businessUrl || (variables.username ? `${emailConfig.baseUrl}/${variables.username}` : emailConfig.baseUrl);
-    const businessName = variables.businessName || name;
+    const businessUrl = variables.businessUrl || (username ? `${emailConfig.baseUrl}/${username}` : emailConfig.baseUrl);
+    const businessName = variables.businessName || variables.business_name || variables.displayName || name || (username ? `@${username}` : "Creator");
 
     const mergedVariables = {
+      username,
       name,
       firstName,
       first_name: firstName,

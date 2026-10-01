@@ -85,9 +85,47 @@ export async function retryFailedEmail(logId: string) {
 /**
  * Sends a single test email.
  */
-export async function sendTestEmail(recipientEmail: string, templateName: string, variables: any) {
+export async function sendTestEmail(recipientEmail: string, templateName: string, variables: any = {}) {
   try {
-    const result = await enqueueEmail(recipientEmail, templateName, variables);
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+    // Attempt to lookup recipient in database to use their real account data if present
+    let dbProfile = null;
+    try {
+      dbProfile = await prisma.profile.findFirst({
+        where: { email: recipientEmail },
+        select: { id: true, displayName: true, username: true },
+      });
+    } catch {
+      // Ignore DB lookup error in mock mode
+    }
+
+    const displayName = dbProfile?.displayName || variables.name || variables.displayName || variables.businessName || "Byroo Boutique";
+    const username = dbProfile?.username || variables.username || "byrooboutique";
+    const firstName = displayName.startsWith("@") ? displayName : displayName.split(" ")[0] || "Creator";
+    const dashboardUrl = `${baseUrl}/dashboard`;
+    const businessUrl = username ? `${baseUrl}/${username}` : baseUrl;
+
+    const enrichedVariables = {
+      username,
+      name: displayName,
+      displayName,
+      firstName,
+      first_name: firstName,
+      businessName: displayName,
+      business_name: displayName,
+      businessUrl,
+      business_url: businessUrl,
+      business_link: businessUrl,
+      dashboardUrl,
+      dashboard_url: dashboardUrl,
+      dashboard_link: dashboardUrl,
+      ...variables,
+    };
+
+    const result = await enqueueEmail(recipientEmail, templateName, enrichedVariables, {
+      userId: dbProfile?.id || undefined,
+    });
     return { success: true, result };
   } catch (error: any) {
     console.error("Error sending test email:", error);
@@ -204,6 +242,7 @@ export async function launchCampaign(campaignId: string) {
         user.email,
         campaign.templateName,
         {
+          username: user.username || "",
           name: displayName,
           firstName: firstName,
           first_name: firstName,
